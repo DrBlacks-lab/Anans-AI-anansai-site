@@ -148,6 +148,14 @@ a:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 .ck-btn:disabled{opacity:.3;cursor:default}
 .ck-count{font-family:var(--f-mono);font-size:.7rem;color:#5E6C67}
 
+/* progressive enhancement: all steps render without JS, stepper is the upgrade */
+.ck-step{display:block}
+html:not(.js) .ck-step + .ck-step{margin-top:2.6rem;padding-top:2.6rem;border-top:1px solid #2C3733}
+html:not(.js) .ck-nav,html:not(.js) .ck-foot{display:none}
+html.js .ck-step{display:none}
+html.js .ck-step.is-on{display:block}
+.ck-step h3 .n{font-family:var(--f-mono);font-size:.7rem;color:#5E6C67;margin-right:.7rem;font-weight:400}
+
 /* ── verify block ─────────────────────────── */
 .verify{font-family:var(--f-mono);font-size:.8rem;line-height:1.9;background:var(--paper-2);
   border-left:2px solid var(--ink);padding:1.15rem 1.3rem;margin:1.5rem 0 0;overflow-x:auto;
@@ -174,6 +182,7 @@ a:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
   *{animation-duration:.001ms!important;transition-duration:.001ms!important}
 }
 </style>
+<script>document.documentElement.className+=' js';</script>
 </head>
 <body>
 
@@ -240,10 +249,10 @@ a:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 
 </div>
 
-<section class="cockpit" id="walkthrough">
+<section class="cockpit" id="walkthrough" aria-labelledby="ck-h">
   <div class="wrap">
     <div class="ck-head">
-      <h2>Walkthrough: the build room, cold</h2>
+      <h2 id="ck-h">Walkthrough: the build room, cold</h2>
       <span class="ck-mode">Non-actuating demonstration</span>
     </div>
 
@@ -252,11 +261,209 @@ a:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
         <ul class="ck-nav" id="cknav"></ul>
       </nav>
 
-      <div class="ck-screen">
-        <h3 id="ck-title"></h3>
-        <p class="ck-say" id="ck-say"></p>
-        <pre class="ck-panel" id="ck-panel" aria-live="polite"></pre>
-        <p class="ck-note" id="ck-note"></p>
+      <div class="ck-screen" id="ckscreen">
+
+        <article class="ck-step">
+          <h3><span class="n">01</span>Entry</h3>
+          <p class="ck-say">The first thing the cockpit tells you is what it cannot do. Before any capability is shown, every disabled surface is named.</p>
+          <pre class="ck-panel"><b>ANANS GOVERNED BUILD ROOM</b>
+
+MODE                 NON-ACTUATING DEMONSTRATION
+LIVE EXECUTION       <span class="no">DISABLED</span>
+WORKER DISPATCH      <span class="no">DISABLED</span>
+SOURCE MUTATION      <span class="no">DISABLED</span>
+RUNTIME GUARD        <span class="wa">ATTESTED LOCALLY / SOURCE UNCOMMISSIONED</span>
+PRODUCTION           <span class="no">WITHHELD</span></pre>
+          <p class="ck-note">You should know within five seconds that this is not a live autonomous-agent demo. If a governance product hides that, nothing after it is trustworthy.</p>
+        </article>
+
+        <article class="ck-step">
+          <h3><span class="n">02</span>The objective</h3>
+          <p class="ck-say">Work starts from a bound artifact, not a prompt in someone's history. You can see which file supplied it and check its hash.</p>
+          <pre class="ck-panel"><b>OBJECTIVE</b>
+
+Create a JSON artifact containing:
+  { "environment": "synthetic", "status": "ready" }
+Then verify it contains those exact values.
+
+SOURCE       synthetic_demo_objective.json
+STATE        <span class="ok">BOUND</span>
+SHA-256      3e21e665f5…d92aa535
+AUTHORITY    SYNTHETIC DEMONSTRATION ONLY</pre>
+          <p class="ck-note">An objective describes desired work. On its own it authorises nothing.</p>
+        </article>
+
+        <article class="ck-step">
+          <h3><span class="n">03</span>Authority</h3>
+          <p class="ck-say">Separate from the objective: what this run is permitted to do. Written before execution, not derived from it.</p>
+          <pre class="ck-panel"><b>AUTHORISED</b>
+  execute two declared block types
+  write only beneath the run directory
+  verify the generated JSON
+  emit receipts
+
+<b>NOT AUTHORISED</b>
+  <span class="no">shell or subprocess</span>
+  <span class="no">dynamic import</span>
+  <span class="no">repository access</span>
+  <span class="no">source mutation</span>
+  <span class="no">network or browser</span>
+  <span class="no">spawning further workers</span>
+  <span class="no">merge or promotion</span>
+
+USE          SINGLE-USE
+REPLAY       PROHIBITED
+EXPIRY       AT TERMINAL</pre>
+          <p class="ck-note">“Can it just decide to do more?” No. The graph contains only declared block types; unknown capabilities are rejected rather than interpreted.</p>
+        </article>
+
+        <article class="ck-step">
+          <h3><span class="n">04</span>Work graph</h3>
+          <p class="ck-say">The whole of what this agent can do, shown as a graph. There is no general coding agent behind it.</p>
+          <pre class="ck-panel">BLOCK_A   <b>EMIT_JSON</b>
+   │  out    synthetic_output.json
+   │  path   synthetic_demo/output/
+   │  ends   BLOCK_A_PASS | BLOCK_A_REFUSED
+   ▼
+BLOCK_B   <b>ASSERT_JSON</b>
+      in     synthetic_output.json
+      checks environment=synthetic status=ready
+      ends   BLOCK_B_PASS | BLOCK_B_ASSERTION_FAILURE
+
+EXECUTOR EXPOSES:  EMIT_JSON, ASSERT_JSON</pre>
+          <p class="ck-note">Two verbs. That is the entire surface. Narrowness here is the point, not a limitation of the demo.</p>
+        </article>
+
+        <article class="ck-step">
+          <h3><span class="n">05</span>Budget</h3>
+          <p class="ck-say">Ceilings are declared before the run and are terminal conditions rather than warnings.</p>
+          <pre class="ck-panel">BLOCKS               2 maximum
+EXECUTION ATTEMPTS   1
+AUTHORISED PATHS     1
+NETWORK CALLS        0
+SUBPROCESSES         0
+WORKERS SPAWNED      0
+PRODUCTION EFFECTS   0</pre>
+          <p class="ck-note">This budget is a declaration bound to a synthetic packet. It is not evidence that an uncommissioned live guard enforces production budgets. The cockpit says so on the panel itself.</p>
+        </article>
+
+        <article class="ck-step">
+          <h3><span class="n">06</span>Execution trace</h3>
+          <p class="ck-say">What happened, in order. Every line links to the receipt that supports it.</p>
+          <pre class="ck-panel"> 1  invocation admitted
+ 2  graph schema validated
+ 3  dependency order validated
+ 4  single-use authorisation minted
+ 5  BLOCK_A entered
+ 6  synthetic_output.json emitted
+ 7  BLOCK_A receipt generated
+ 8  BLOCK_B entered
+ 9  JSON assertion <span class="ok">passed</span>
+10  BLOCK_B receipt generated
+11  receipt chain reconciled
+12  terminal: <span class="ok">SYNTHETIC_EXECUTION_COMPLETE</span>
+13  authorisation consumed</pre>
+          <p class="ck-note">Switching from summary to evidence shows artifact path, size, SHA-256, producing block, receipt ID, and validation state for each step.</p>
+        </article>
+
+        <article class="ck-step">
+          <h3><span class="n">07</span>Replay denied</h3>
+          <p class="ck-say">The same invocation with the same authorisation, attempted twice. Single-use means single-use.</p>
+          <pre class="ck-panel">REQUEST            same invocation, same authorisation
+RESULT             <span class="no">REPLAY_DENIED</span>
+FILESYSTEM DELTA   none
+MANIFEST BEFORE    identical
+MANIFEST AFTER     identical
+
+EVIDENCE TYPE      FROZEN LOCAL RESULT
+NOT                INDEPENDENT EXTERNAL REPRODUCTION</pre>
+          <p class="ck-note">“How do I know it didn't write again?” The before and after manifests are both shown. No hash and no size changed.</p>
+        </article>
+
+        <article class="ck-step">
+          <h3><span class="n">08</span>Refusal</h3>
+          <p class="ck-say">A request arrives without a declared receipt contract. This is the case that matters most.</p>
+          <pre class="ck-panel">REQUEST            execute declared graph
+RECEIPT CONTRACT   <span class="no">MISSING</span>
+
+DECISION           <span class="no">DENY_FAIL_CLOSED</span>
+EXECUTION ENTERED  no
+OUTPUTS CREATED    0
+
+REASON             REQUIRED EXECUTION EVIDENCE NOT DECLARED</pre>
+          <p class="ck-note">A refused request produces an inspectable state, not silence. Systems that fail quietly are the ones you cannot audit later.</p>
+        </article>
+
+        <article class="ck-step">
+          <h3><span class="n">09</span>Adverse evidence</h3>
+          <p class="ck-say">Historical findings and current blockers are shown next to the successful run, not filed away from it.</p>
+          <pre class="ck-panel"><b>RUNTIME GUARD — HISTORICAL</b>
+  hostile chain, earlier candidate   5 passed / 10 failed
+  classification                     <span class="wa">NECESSARY_BUT_DEFECTIVE</span>
+  current source state               <span class="no">UNCOMMISSIONED</span>
+  live use                           <span class="no">PROHIBITED</span>
+
+<b>OWNER IDENTITY EXPORT</b>
+  authority                          present
+  execution                          <span class="wa">not entered</span>
+  reason                             eligible owner identity inactive</pre>
+          <p class="ck-note">Why show failures to a visitor? Because a record with the failures removed cannot be relied on for the parts that remain.</p>
+        </article>
+
+        <article class="ck-step">
+          <h3><span class="n">10</span>Admission state</h3>
+          <p class="ck-say">Four separate questions, four separate answers. They are never collapsed into one green light.</p>
+          <pre class="ck-panel"><b>SYNTHETIC EXECUTOR</b>
+  local result          <span class="ok">PASS</span>
+  production admission  <span class="no">WITHHELD</span>
+  external validation   <span class="no">NOT PERFORMED</span>
+
+<b>RUNTIME GUARD</b>
+  repair                <span class="wa">ATTESTED LOCALLY</span>
+  authoritative source  <span class="no">UNCOMMISSIONED</span>
+  live execution        <span class="no">PROHIBITED</span>
+  next gate             OWNER IDENTITY SOURCE EXPORT</pre>
+          <p class="ck-note">A single status light is a claim that four independent questions have the same answer. They rarely do.</p>
+        </article>
+
+        <article class="ck-step">
+          <h3><span class="n">11</span>Forbidden action</h3>
+          <p class="ck-say">The visitor presses a clearly marked control that asks for live worker dispatch.</p>
+          <pre class="ck-panel">REQUEST            <b>LIVE WORKER DISPATCH</b>
+
+RESULT             <span class="no">REJECTED</span>
+  LIVE_EXECUTION_DISABLED
+  WORKER_DISPATCH_DISABLED
+  RUNTIMEGUARD_COMMISSIONING_NOT_ASSUMED
+
+EXTERNAL ACTION    none
+RECEIPT            issued for the refusal</pre>
+          <p class="ck-note">Even a forbidden action produces evidence. A greyed-out button tells you nothing; a receipted refusal tells you the boundary was reached and held.</p>
+        </article>
+
+        <article class="ck-step">
+          <h3><span class="n">12</span>What you should conclude</h3>
+          <p class="ck-say">The walkthrough succeeds only if you leave with an accurate picture — which is narrower than a demo usually wants to give you.</p>
+          <pre class="ck-panel"><b>A real governed control and evidence layer exists locally.</b>
+<b>Its live execution boundary is deliberately disconnected.</b>
+
+You should be able to answer:
+  what was requested
+  what authority existed
+  what was permitted
+  what actually happened
+  what evidence supports it
+  what failed or remains blocked
+  why promotion was withheld
+  what must happen before live execution
+
+You should <span class="no">not</span> conclude:
+  that this is production-ready
+  that agents can touch real repositories today
+  that any external validation exists</pre>
+          <p class="ck-note">The walkthrough fails if you leave thinking “nothing real exists” or “this is already autonomous.” The truth sits between those, and it is checkable.</p>
+        </article>
+
         <div class="ck-foot">
           <button class="ck-btn" id="ck-prev" type="button">&larr; Back</button>
           <span class="ck-count" id="ck-count"></span>
@@ -323,8 +530,12 @@ a:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
       <pre class="verify">git clone https://github.com/Anans-AI/anans-containment-proofs
 cd anans-containment-proofs/proofs/nist-ma12/v0.1.0-audit
 
-python -m pip install pynacl
-python EVIDENCE/VERIFY.py --evidence_dir EVIDENCE
+python3 -m pip install pynacl
+python3 EVIDENCE/VERIFY.py --evidence_dir EVIDENCE
+
+# Windows (PowerShell or Command Prompt):
+py -m pip install pynacl
+py EVIDENCE\VERIFY.py --evidence_dir EVIDENCE
 
 # expected: VERIFY PASS</pre>
       <p style="margin-top:1.4rem">A passing result is bounded. It tells you the recorded run is internally consistent and independently inspectable. It does not tell you who controlled the signing key, whether the harness was complete, or whether every relevant path was tested. Those remain open, and the bundle says so.</p>
@@ -369,225 +580,38 @@ python EVIDENCE/VERIFY.py --evidence_dir EVIDENCE
 </footer>
 
 <script>
-const STEPS = [
-  {
-    t:"Entry",
-    say:"The first thing the cockpit tells you is what it cannot do. Before any capability is shown, every disabled surface is named.",
-    p:`<b>ANANS GOVERNED BUILD ROOM</b>
+(function(){
+  var screen=document.getElementById('ckscreen');
+  var steps=[].slice.call(screen.querySelectorAll('.ck-step'));
+  var nav=document.getElementById('cknav');
+  var prev=document.getElementById('ck-prev'), next=document.getElementById('ck-next');
+  var count=document.getElementById('ck-count');
+  if(!steps.length) return;
+  var idx=0;
 
-MODE                 NON-ACTUATING DEMONSTRATION
-LIVE EXECUTION       <span class="no">DISABLED</span>
-WORKER DISPATCH      <span class="no">DISABLED</span>
-SOURCE MUTATION      <span class="no">DISABLED</span>
-RUNTIME GUARD        <span class="wa">ATTESTED LOCALLY / SOURCE UNCOMMISSIONED</span>
-PRODUCTION           <span class="no">WITHHELD</span>`,
-    n:"You should know within five seconds that this is not a live autonomous-agent demo. If a governance product hides that, nothing after it is trustworthy."
-  },
-  {
-    t:"The objective",
-    say:"Work starts from a bound artifact, not a prompt in someone's history. You can see which file supplied it and check its hash.",
-    p:`<b>OBJECTIVE</b>
+  steps.forEach(function(step,i){
+    step.id='ck-step-'+(i+1);
+    var label=step.querySelector('h3').textContent.replace(/^\s*\d+\s*/,'').trim();
+    var li=document.createElement('li'), b=document.createElement('button');
+    b.type='button';
+    b.innerHTML='<span class="n">'+String(i+1).padStart(2,'0')+'</span>'+label;
+    b.addEventListener('click',function(){show(i);});
+    li.appendChild(b); nav.appendChild(li);
+  });
 
-Create a JSON artifact containing:
-  { "environment": "synthetic", "status": "ready" }
-Then verify it contains those exact values.
-
-SOURCE       synthetic_demo_objective.json
-STATE        <span class="ok">BOUND</span>
-SHA-256      3e21e665f5…d92aa535
-AUTHORITY    SYNTHETIC DEMONSTRATION ONLY`,
-    n:"An objective describes desired work. On its own it authorises nothing."
-  },
-  {
-    t:"Authority",
-    say:"Separate from the objective: what this run is permitted to do. Written before execution, not derived from it.",
-    p:`<b>AUTHORISED</b>
-  execute two declared block types
-  write only beneath the run directory
-  verify the generated JSON
-  emit receipts
-
-<b>NOT AUTHORISED</b>
-  <span class="no">shell or subprocess</span>
-  <span class="no">dynamic import</span>
-  <span class="no">repository access</span>
-  <span class="no">source mutation</span>
-  <span class="no">network or browser</span>
-  <span class="no">spawning further workers</span>
-  <span class="no">merge or promotion</span>
-
-USE          SINGLE-USE
-REPLAY       PROHIBITED
-EXPIRY       AT TERMINAL`,
-    n:"“Can it just decide to do more?” No. The graph contains only declared block types; unknown capabilities are rejected rather than interpreted."
-  },
-  {
-    t:"Work graph",
-    say:"The whole of what this agent can do, shown as a graph. There is no general coding agent behind it.",
-    p:`BLOCK_A   <b>EMIT_JSON</b>
-   │  out    synthetic_output.json
-   │  path   synthetic_demo/output/
-   │  ends   BLOCK_A_PASS | BLOCK_A_REFUSED
-   ▼
-BLOCK_B   <b>ASSERT_JSON</b>
-      in     synthetic_output.json
-      checks environment=synthetic status=ready
-      ends   BLOCK_B_PASS | BLOCK_B_ASSERTION_FAILURE
-
-EXECUTOR EXPOSES:  EMIT_JSON, ASSERT_JSON`,
-    n:"Two verbs. That is the entire surface. Narrowness here is the point, not a limitation of the demo."
-  },
-  {
-    t:"Budget",
-    say:"Ceilings are declared before the run and are terminal conditions rather than warnings.",
-    p:`BLOCKS               2 maximum
-EXECUTION ATTEMPTS   1
-AUTHORISED PATHS     1
-NETWORK CALLS        0
-SUBPROCESSES         0
-WORKERS SPAWNED      0
-PRODUCTION EFFECTS   0`,
-    n:"This budget is a declaration bound to a synthetic packet. It is not evidence that an uncommissioned live guard enforces production budgets. The cockpit says so on the panel itself."
-  },
-  {
-    t:"Execution trace",
-    say:"What happened, in order. Every line links to the receipt that supports it.",
-    p:` 1  invocation admitted
- 2  graph schema validated
- 3  dependency order validated
- 4  single-use authorisation minted
- 5  BLOCK_A entered
- 6  synthetic_output.json emitted
- 7  BLOCK_A receipt generated
- 8  BLOCK_B entered
- 9  JSON assertion <span class="ok">passed</span>
-10  BLOCK_B receipt generated
-11  receipt chain reconciled
-12  terminal: <span class="ok">SYNTHETIC_EXECUTION_COMPLETE</span>
-13  authorisation consumed`,
-    n:"Switching from summary to evidence shows artifact path, size, SHA-256, producing block, receipt ID, and validation state for each step."
-  },
-  {
-    t:"Replay denied",
-    say:"The same invocation with the same authorisation, attempted twice. Single-use means single-use.",
-    p:`REQUEST            same invocation, same authorisation
-RESULT             <span class="no">REPLAY_DENIED</span>
-FILESYSTEM DELTA   none
-MANIFEST BEFORE    identical
-MANIFEST AFTER     identical
-
-EVIDENCE TYPE      FROZEN LOCAL RESULT
-NOT                INDEPENDENT EXTERNAL REPRODUCTION`,
-    n:"“How do I know it didn't write again?” The before and after manifests are both shown. No hash and no size changed."
-  },
-  {
-    t:"Refusal",
-    say:"A request arrives without a declared receipt contract. This is the case that matters most.",
-    p:`REQUEST            execute declared graph
-RECEIPT CONTRACT   <span class="no">MISSING</span>
-
-DECISION           <span class="no">DENY_FAIL_CLOSED</span>
-EXECUTION ENTERED  no
-OUTPUTS CREATED    0
-
-REASON             REQUIRED EXECUTION EVIDENCE NOT DECLARED`,
-    n:"A refused request produces an inspectable state, not silence. Systems that fail quietly are the ones you cannot audit later."
-  },
-  {
-    t:"Adverse evidence",
-    say:"Historical findings and current blockers are shown next to the successful run, not filed away from it.",
-    p:`<b>RUNTIME GUARD — HISTORICAL</b>
-  hostile chain, earlier candidate   5 passed / 10 failed
-  classification                     <span class="wa">NECESSARY_BUT_DEFECTIVE</span>
-  current source state               <span class="no">UNCOMMISSIONED</span>
-  live use                           <span class="no">PROHIBITED</span>
-
-<b>OWNER IDENTITY EXPORT</b>
-  authority                          present
-  execution                          <span class="wa">not entered</span>
-  reason                             eligible owner identity inactive`,
-    n:"Why show failures to a visitor? Because a record with the failures removed cannot be relied on for the parts that remain."
-  },
-  {
-    t:"Admission state",
-    say:"Four separate questions, four separate answers. They are never collapsed into one green light.",
-    p:`<b>SYNTHETIC EXECUTOR</b>
-  local result          <span class="ok">PASS</span>
-  production admission  <span class="no">WITHHELD</span>
-  external validation   <span class="no">NOT PERFORMED</span>
-
-<b>RUNTIME GUARD</b>
-  repair                <span class="wa">ATTESTED LOCALLY</span>
-  authoritative source  <span class="no">UNCOMMISSIONED</span>
-  live execution        <span class="no">PROHIBITED</span>
-  next gate             OWNER IDENTITY SOURCE EXPORT`,
-    n:"A single status light is a claim that four independent questions have the same answer. They rarely do."
-  },
-  {
-    t:"Forbidden action",
-    say:"The visitor presses a clearly marked control that asks for live worker dispatch.",
-    p:`REQUEST            <b>LIVE WORKER DISPATCH</b>
-
-RESULT             <span class="no">REJECTED</span>
-  LIVE_EXECUTION_DISABLED
-  WORKER_DISPATCH_DISABLED
-  RUNTIMEGUARD_COMMISSIONING_NOT_ASSUMED
-
-EXTERNAL ACTION    none
-RECEIPT            issued for the refusal`,
-    n:"Even a forbidden action produces evidence. A greyed-out button tells you nothing; a receipted refusal tells you the boundary was reached and held."
-  },
-  {
-    t:"What you should conclude",
-    say:"The walkthrough succeeds only if you leave with an accurate picture — which is narrower than a demo usually wants to give you.",
-    p:`<b>A real governed control and evidence layer exists locally.</b>
-<b>Its live execution boundary is deliberately disconnected.</b>
-
-You should be able to answer:
-  what was requested
-  what authority existed
-  what was permitted
-  what actually happened
-  what evidence supports it
-  what failed or remains blocked
-  why promotion was withheld
-  what must happen before live execution
-
-You should <span class="no">not</span> conclude:
-  that this is production-ready
-  that agents can touch real repositories today
-  that any external validation exists`,
-    n:"The walkthrough fails if you leave thinking either “nothing real exists” or “this is already autonomous.” The truth sits between those, and it is checkable."
+  function show(i){
+    idx=Math.max(0,Math.min(steps.length-1,i));
+    steps.forEach(function(s,j){s.classList.toggle('is-on',j===idx);});
+    [].slice.call(nav.querySelectorAll('button')).forEach(function(b,j){
+      b.setAttribute('aria-current', j===idx?'true':'false');
+    });
+    count.textContent=String(idx+1).padStart(2,'0')+' / '+String(steps.length).padStart(2,'0');
+    prev.disabled=idx===0; next.disabled=idx===steps.length-1;
   }
-];
-
-const nav=document.getElementById('cknav'),
-      elT=document.getElementById('ck-title'), elS=document.getElementById('ck-say'),
-      elP=document.getElementById('ck-panel'), elN=document.getElementById('ck-note'),
-      elC=document.getElementById('ck-count'),
-      bPrev=document.getElementById('ck-prev'), bNext=document.getElementById('ck-next');
-let idx=0;
-
-STEPS.forEach((s,i)=>{
-  const li=document.createElement('li'), b=document.createElement('button');
-  b.type='button';
-  b.innerHTML='<span class="n">'+String(i+1).padStart(2,'0')+'</span>'+s.t;
-  b.addEventListener('click',()=>show(i));
-  li.appendChild(b); nav.appendChild(li);
-});
-
-function show(i){
-  idx=Math.max(0,Math.min(STEPS.length-1,i));
-  const s=STEPS[idx];
-  elT.textContent=s.t; elS.textContent=s.say;
-  elP.innerHTML=s.p; elN.textContent=s.n;
-  elC.textContent=String(idx+1).padStart(2,'0')+' / '+String(STEPS.length).padStart(2,'0');
-  bPrev.disabled=idx===0; bNext.disabled=idx===STEPS.length-1;
-  [...nav.querySelectorAll('button')].forEach((b,j)=>b.setAttribute('aria-current',j===idx?'true':'false'));
-}
-bPrev.addEventListener('click',()=>show(idx-1));
-bNext.addEventListener('click',()=>show(idx+1));
-show(0);
+  prev.addEventListener('click',function(){show(idx-1);});
+  next.addEventListener('click',function(){show(idx+1);});
+  show(0);
+})();
 </script>
 </body>
 </html>
