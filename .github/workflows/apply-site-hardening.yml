@@ -1,6 +1,7 @@
 name: Apply site hardening
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
     paths:
@@ -33,15 +34,12 @@ jobs:
           assert 'Content-Security-Policy' in s
           assert 'One external reviewer has run the public bundle' not in s
           assert 'py -m pip install pynacl' in s
+          scripts=re.findall(r'<script>(.*?)</script>',s,re.S)
+          assert len(scripts) == 2
+          Path('/tmp/site.js').write_text(scripts[1],encoding='utf-8')
           print('STATIC_VALIDATION_PASS')
           PY
-          node --check <(python - <<'PY'
-          from pathlib import Path
-          import re
-          s=Path('index.html').read_text(encoding='utf-8')
-          print(re.findall(r'<script>(.*?)</script>',s,re.S)[1])
-          PY
-          )
+          node --check /tmp/site.js
       - name: Commit hardened site
         run: |
           if git diff --quiet -- index.html; then
