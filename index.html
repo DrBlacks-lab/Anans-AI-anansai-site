@@ -3,14 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'none'; img-src 'self' data:; font-src 'self'; connect-src 'none'; media-src 'none'; style-src 'sha256-GOP9GgY3MSkvEpwcCy2CPw3yI0Kax/UuWLWKttRNd+4='; script-src 'sha256-5JWz2pFlxEjBn60lOlhminb3At6YloWzeus5DqPU7W8=' 'sha256-vSdPw96sbbv1oMLz5L8cDDwbEOShvOjC8N++KAIw0U0='; manifest-src 'self'; upgrade-insecure-requests">
 <title>ANANS — governed execution for AI agents</title>
 <meta name="description" content="ANANS is an admission layer for AI workers. It decides before execution what an agent may touch, and produces evidence afterwards that a reviewer who wasn't present can check offline.">
 <meta property="og:title" content="ANANS — governed execution for AI agents">
 <meta property="og:description" content="Every agent action leaves a receipt. Including the ones that were refused.">
 <meta property="og:type" content="website">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;800&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
   --paper:#E6E8E3;
@@ -27,9 +25,9 @@
   --st-open:#8A6A1F;
   --st-hold:#9E3A2A;
 
-  --f-display:'Archivo',system-ui,sans-serif;
-  --f-body:'Newsreader',Georgia,serif;
-  --f-mono:'IBM Plex Mono',ui-monospace,monospace;
+  --f-display:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+  --f-body:ui-serif,Georgia,Cambria,'Times New Roman',serif;
+  --f-mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation Mono','Courier New',monospace;
 
   --measure:64ch;
   --gutter:clamp(1.1rem,4vw,3rem);
@@ -155,6 +153,25 @@ html:not(.js) .ck-nav,html:not(.js) .ck-foot{display:none}
 html.js .ck-step{display:none}
 html.js .ck-step.is-on{display:block}
 .ck-step h3 .n{font-family:var(--f-mono);font-size:.7rem;color:#5E6C67;margin-right:.7rem;font-weight:400}
+
+/* recorded-state comparison */
+.compare{margin-top:2.4rem;padding-top:2.4rem;border-top:1px solid #2C3733}
+.compare-head{display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;flex-wrap:wrap;margin-bottom:1.2rem}
+.compare-head h3{margin:0;color:#F0F3F0;font-family:var(--f-display);font-size:1.22rem}
+.compare-head p{margin:0;color:#7C8A85;font-family:var(--f-mono);font-size:.68rem}
+.fixture-nav{display:flex;gap:.5rem;flex-wrap:wrap;margin:0 0 1rem;padding:0;list-style:none}
+.fixture-nav button{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;background:none;border:1px solid #3E4B47;color:#C9D2CD;padding:.55rem .75rem;cursor:pointer}
+.fixture-nav button[aria-current="true"]{background:#C9D2CD;color:var(--screen)}
+.fixture{display:block;background:var(--screen-2);border:1px solid #2C3733;padding:1.1rem;margin-top:1rem}
+.fixture h4{margin:0 0 .55rem;color:#F0F3F0;font-family:var(--f-display);font-size:1.05rem}
+.fixture .fixture-action{font-family:var(--f-mono);font-size:.66rem;color:#7C8A85;margin:.8rem 0 0}
+html:not(.js) .fixture-nav{display:none}
+html:not(.js) .fixture + .fixture{margin-top:1.3rem}
+html.js .fixture{display:none}
+html.js .fixture.is-on{display:block}
+.post-verify{margin-top:1.4rem}
+.sec-last{border-bottom:0}
+.contact-link{margin-top:1.5rem}
 
 /* ── verify block ─────────────────────────── */
 .verify{font-family:var(--f-mono);font-size:.8rem;line-height:1.9;background:var(--paper-2);
@@ -471,6 +488,43 @@ You should <span class="no">not</span> conclude:
         </div>
       </div>
     </div>
+
+    <section class="compare" aria-labelledby="compare-h">
+      <div class="compare-head">
+        <h3 id="compare-h">Compare recorded states</h3>
+        <p>Frozen demonstrations only · no live execution</p>
+      </div>
+      <ul class="fixture-nav" id="fixture-nav" aria-label="Recorded state fixtures"></ul>
+      <div id="fixture-screen">
+        <article class="fixture">
+          <h4>Lawful completion</h4>
+          <pre class="ck-panel">AUTHORITY           PRESENT
+GRAPH               2 DECLARED BLOCKS
+RESULT              <span class="ok">COMPLETE</span>
+REPLAY              <span class="no">DENIED</span>
+PRODUCTION          <span class="no">WITHHELD</span></pre>
+          <p class="fixture-action">View recorded execution · inspect receipt chain</p>
+        </article>
+        <article class="fixture">
+          <h4>Fail-closed refusal</h4>
+          <pre class="ck-panel">RECEIPT CONTRACT    <span class="no">MISSING</span>
+EXECUTION ENTERED   NO
+OUTPUTS CREATED     0
+DECISION            <span class="no">DENY_FAIL_CLOSED</span>
+REFUSAL RECEIPT     ISSUED</pre>
+          <p class="fixture-action">Inspect refusal · compare authority boundary</p>
+        </article>
+        <article class="fixture">
+          <h4>Uncommissioned repair</h4>
+          <pre class="ck-panel">REPAIR              <span class="wa">LOCALLY ATTESTED</span>
+AUTHORITATIVE SOURCE <span class="no">UNCOMMISSIONED</span>
+LIVE USE             <span class="no">PROHIBITED</span>
+NEXT GATE            SOURCE-CUSTODY PREREQUISITE
+PRODUCTION           <span class="no">WITHHELD</span></pre>
+          <p class="fixture-action">Inspect admission state · view next lawful gate</p>
+        </article>
+      </div>
+    </section>
   </div>
 </section>
 
@@ -538,11 +592,11 @@ py -m pip install pynacl
 py EVIDENCE\VERIFY.py --evidence_dir EVIDENCE
 
 # expected: VERIFY PASS</pre>
-      <p style="margin-top:1.4rem">A passing result is bounded. It tells you the recorded run is internally consistent and independently inspectable. It does not tell you who controlled the signing key, whether the harness was complete, or whether every relevant path was tested. Those remain open, and the bundle says so.</p>
+      <p class="post-verify">A passing result is bounded. It tells you the recorded run is internally consistent and independently inspectable. It does not tell you who controlled the signing key, whether the harness was complete, or whether every relevant path was tested. Those remain open, and the bundle says so.</p>
     </div>
   </section>
 
-  <section class="sec" style="border-bottom:0">
+  <section class="sec sec-last">
     <div class="rail"><div class="rail-inner">
       <span class="sec-no">06 / CONTACT</span>
     </div></div>
@@ -550,7 +604,7 @@ py EVIDENCE\VERIFY.py --evidence_dir EVIDENCE
       <h2>Who this is for right now</h2>
       <p>Not buyers — there is nothing to buy yet. This is for people evaluating whether AI workers can be allowed near controlled software, and for reviewers willing to break something and say so.</p>
       <p>If you run the bundle, the most useful thing you can send back is not whether it passed. It is the list of things you still had to trust after it passed.</p>
-      <p style="margin-top:1.5rem"><a href="mailto:hello@anansai.org">hello@anansai.org</a></p>
+      <p class="contact-link"><a href="mailto:hello@anansai.org">hello@anansai.org</a></p>
     </div>
   </section>
 
@@ -611,6 +665,24 @@ py EVIDENCE\VERIFY.py --evidence_dir EVIDENCE
   prev.addEventListener('click',function(){show(idx-1);});
   next.addEventListener('click',function(){show(idx+1);});
   show(0);
+
+  var fixtureScreen=document.getElementById('fixture-screen');
+  var fixtures=[].slice.call(fixtureScreen.querySelectorAll('.fixture'));
+  var fixtureNav=document.getElementById('fixture-nav');
+  fixtures.forEach(function(fixture,i){
+    var li=document.createElement('li'), b=document.createElement('button');
+    b.type='button';
+    b.textContent=fixture.querySelector('h4').textContent;
+    b.addEventListener('click',function(){showFixture(i);});
+    li.appendChild(b); fixtureNav.appendChild(li);
+  });
+  function showFixture(i){
+    fixtures.forEach(function(f,j){f.classList.toggle('is-on',j===i);});
+    [].slice.call(fixtureNav.querySelectorAll('button')).forEach(function(b,j){
+      b.setAttribute('aria-current',j===i?'true':'false');
+    });
+  }
+  showFixture(0);
 })();
 </script>
 </body>
