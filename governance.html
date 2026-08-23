@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'none'; img-src 'self' data:; font-src 'self'; connect-src 'none'; media-src 'none'; style-src 'sha256-GOP9GgY3MSkvEpwcCy2CPw3yI0Kax/UuWLWKttRNd+4='; script-src 'sha256-5JWz2pFlxEjBn60lOlhminb3At6YloWzeus5DqPU7W8=' 'sha256-vSdPw96sbbv1oMLz5L8cDDwbEOShvOjC8N++KAIw0U0='; manifest-src 'self'; upgrade-insecure-requests">
+<title>ANANS — governed execution for AI agents</title>
+<meta name="description" content="ANANS is an admission layer for AI workers. It decides before execution what an agent may touch, and produces evidence afterwards that a reviewer who wasn't present can check offline.">
+<meta property="og:title" content="ANANS — governed execution for AI agents">
+<meta property="og:description" content="Every agent action leaves a receipt. Including the ones that were refused.">
+<meta property="og:type" content="website">
+<style>
+:root{
+  --paper:#E6E8E3;
+  --paper-2:#DDE0DA;
+  --ink:#131A18;
+  --ink-soft:#3F4A47;
+  --rule:#B7BDB6;
+  --screen:#101614;
+  --screen-2:#1A211F;
+  --screen-ink:#C9D2CD;
+
+  /* colour is reserved for evidence state only */
+  --st-pass:#2C6349;
+  --st-open:#8A6A1F;
+  --st-hold:#9E3A2A;
+
+  --f-display:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+  --f-body:ui-serif,Georgia,Cambria,'Times New Roman',serif;
+  --f-mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation Mono','Courier New',monospace;
+
+  --measure:64ch;
+  --gutter:clamp(1.1rem,4vw,3rem);
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--f-body);font-weight:300;
+  font-size:clamp(1.02rem,.62rem + .55vw,1.16rem);line-height:1.62;
+  font-optical-sizing:auto;
+}
+a{color:inherit;text-decoration:none;border-bottom:1px solid var(--ink);padding-bottom:1px}
+a:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+
+.wrap{max-width:1180px;margin:0 auto;padding:0 var(--gutter)}
+
+/* ── masthead ─────────────────────────────── */
+.mast{padding-top:1.4rem}
+.mast-rule{height:2px;background:var(--ink);transform-origin:left;animation:draw .9s cubic-bezier(.2,.7,.2,1) both}
+@keyframes draw{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.mast-row{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;flex-wrap:wrap;padding:.55rem 0 1.1rem}
+.wordmark{font-family:var(--f-display);font-weight:800;font-size:1.06rem;letter-spacing:.2em}
+.mast-meta{font-family:var(--f-mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft)}
+
+/* ── hero ─────────────────────────────────── */
+.hero{padding:clamp(2.4rem,7vw,5.4rem) 0 clamp(2rem,5vw,3.6rem);border-bottom:1px solid var(--rule)}
+.eyebrow{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 1.5rem}
+.hero h1{
+  font-family:var(--f-display);font-weight:800;
+  font-size:clamp(2.05rem,1rem + 4.4vw,4.1rem);
+  line-height:.99;letter-spacing:-.026em;margin:0;max-width:19ch;text-wrap:balance;
+}
+.hero h1 em{font-style:normal;display:block;color:var(--ink-soft)}
+.hero p{max-width:var(--measure);margin:1.7rem 0 0;font-size:1.12em}
+.hero-links{display:flex;gap:1.6rem;flex-wrap:wrap;margin-top:2.1rem;font-family:var(--f-mono);font-size:.78rem;letter-spacing:.06em}
+
+/* ── state rail (signature) ───────────────── */
+.sec{display:grid;grid-template-columns:13.5rem 1fr;gap:clamp(1.2rem,4vw,3.4rem);
+  padding:clamp(2.2rem,5vw,3.8rem) 0;border-bottom:1px solid var(--rule)}
+.rail{position:relative}
+.rail-inner{position:sticky;top:1.5rem}
+.sec-no{font-family:var(--f-mono);font-size:.66rem;letter-spacing:.16em;color:var(--ink-soft);display:block;margin-bottom:.75rem}
+.stamp{display:inline-block;font-family:var(--f-mono);font-size:.63rem;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;line-height:1.35;
+  padding:.42rem .55rem;border:1.5px solid currentColor;max-width:11rem}
+.stamp.pass{color:var(--st-pass)}
+.stamp.open{color:var(--st-open)}
+.stamp.hold{color:var(--st-hold)}
+.body h2{font-family:var(--f-display);font-weight:600;font-size:clamp(1.35rem,.9rem + 1.4vw,2rem);
+  line-height:1.1;letter-spacing:-.018em;margin:0 0 1.15rem;max-width:24ch;text-wrap:balance}
+.body p{max-width:var(--measure);margin:0 0 1.05rem}
+.body p:last-child{margin-bottom:0}
+.lede{font-size:1.1em}
+
+/* ── property list ────────────────────────── */
+.props{list-style:none;margin:1.9rem 0 0;padding:0;display:grid;gap:1.5rem}
+.props li{padding-top:1.05rem;border-top:1px solid var(--rule);max-width:var(--measure)}
+.props h3{font-family:var(--f-mono);font-size:.72rem;font-weight:600;letter-spacing:.13em;
+  text-transform:uppercase;margin:0 0 .5rem}
+.props p{margin:0}
+
+/* ── evidence table ───────────────────────── */
+.ledger{width:100%;border-collapse:collapse;margin-top:.5rem;font-size:.95em}
+.ledger th{text-align:left;font-family:var(--f-mono);font-size:.63rem;font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);
+  padding:0 1rem .6rem 0;border-bottom:1.5px solid var(--ink)}
+.ledger td{padding:.85rem 1rem .85rem 0;border-bottom:1px solid var(--rule);vertical-align:top}
+.ledger td:first-child{font-weight:400}
+.ledger .state{font-family:var(--f-mono);font-size:.63rem;font-weight:600;letter-spacing:.09em;
+  text-transform:uppercase;white-space:nowrap}
+.s-pass{color:var(--st-pass)}
+.s-open{color:var(--st-open)}
+.s-hold{color:var(--st-hold)}
+
+/* ── non-claims: identical weight to claims ─ */
+.negs{list-style:none;margin:0;padding:0;max-width:var(--measure)}
+.negs li{padding:.8rem 0 .8rem 1.9rem;border-bottom:1px solid var(--rule);position:relative}
+.negs li::before{content:"—";position:absolute;left:0;font-family:var(--f-mono);color:var(--st-hold)}
+
+/* ── cockpit (dark inset) ─────────────────── */
+.cockpit{background:var(--screen);color:var(--screen-ink);margin:0;padding:clamp(2rem,5vw,3.6rem) 0}
+.cockpit .wrap{max-width:1180px}
+.ck-head{display:flex;justify-content:space-between;align-items:flex-end;gap:1.5rem;flex-wrap:wrap;
+  padding-bottom:1.3rem;border-bottom:1px solid #2C3733}
+.ck-head h2{font-family:var(--f-display);font-weight:600;color:#F0F3F0;
+  font-size:clamp(1.35rem,.9rem + 1.4vw,2rem);letter-spacing:-.018em;margin:0;line-height:1.1}
+.ck-mode{font-family:var(--f-mono);font-size:.63rem;letter-spacing:.12em;text-transform:uppercase;
+  color:#D98B7A;border:1.5px solid #D98B7A;padding:.42rem .55rem}
+.ck-grid{display:grid;grid-template-columns:15rem 1fr;gap:clamp(1.2rem,3vw,2.6rem);margin-top:1.8rem}
+.ck-nav{list-style:none;margin:0;padding:0;font-family:var(--f-mono);font-size:.74rem}
+.ck-nav button{display:block;width:100%;text-align:left;background:none;border:0;color:#7C8A85;
+  font:inherit;padding:.44rem .55rem;cursor:pointer;border-left:2px solid transparent;line-height:1.35}
+.ck-nav button:hover{color:#C9D2CD}
+.ck-nav button[aria-current="true"]{color:#F0F3F0;border-left-color:#D98B7A;background:#1A211F}
+.ck-nav .n{color:#4E5B57;margin-right:.6rem}
+.ck-screen{background:var(--screen-2);border:1px solid #2C3733;padding:clamp(1.2rem,3vw,2rem);min-height:24rem;
+  display:flex;flex-direction:column}
+.ck-screen h3{font-family:var(--f-display);font-weight:600;color:#F0F3F0;font-size:1.22rem;
+  margin:0 0 .35rem;letter-spacing:-.01em}
+.ck-say{font-family:var(--f-body);font-weight:300;color:#A7B3AE;margin:0 0 1.4rem;max-width:56ch;font-size:.98rem}
+.ck-panel{font-family:var(--f-mono);font-size:.76rem;line-height:1.85;white-space:pre-wrap;
+  background:#0B100F;border:1px solid #2C3733;padding:1rem 1.1rem;color:#B8C4BF;overflow-x:auto;margin:0}
+.ck-panel b{color:#F0F3F0;font-weight:600}
+.ck-panel .ok{color:#6FA98A;font-weight:600}
+.ck-panel .no{color:#D98B7A;font-weight:600}
+.ck-panel .wa{color:#C4A455;font-weight:600}
+.ck-note{font-family:var(--f-mono);font-size:.68rem;line-height:1.6;color:#7C8A85;
+  margin:1.1rem 0 0;padding-top:.9rem;border-top:1px solid #2C3733;max-width:62ch}
+.ck-foot{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-top:auto;padding-top:1.5rem}
+.ck-btn{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+  background:none;border:1px solid #3E4B47;color:#C9D2CD;padding:.6rem 1rem;cursor:pointer}
+.ck-btn:hover:not(:disabled){background:#C9D2CD;color:var(--screen);border-color:#C9D2CD}
+.ck-btn:disabled{opacity:.3;cursor:default}
+.ck-count{font-family:var(--f-mono);font-size:.7rem;color:#5E6C67}
+
+/* progressive enhancement: all steps render without JS, stepper is the upgrade */
+.ck-step{display:block}
+html:not(.js) .ck-step + .ck-step{margin-top:2.6rem;padding-top:2.6rem;border-top:1px solid #2C3733}
+html:not(.js) .ck-nav,html:not(.js) .ck-foot{display:none}
+html.js .ck-step{display:none}
+html.js .ck-step.is-on{display:block}
+.ck-step h3 .n{font-family:var(--f-mono);font-size:.7rem;color:#5E6C67;margin-right:.7rem;font-weight:400}
+
+/* recorded-state comparison */
+.compare{margin-top:2.4rem;padding-top:2.4rem;border-top:1px solid #2C3733}
+.compare-head{display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;flex-wrap:wrap;margin-bottom:1.2rem}
+.compare-head h3{margin:0;color:#F0F3F0;font-family:var(--f-display);font-size:1.22rem}
+.compare-head p{margin:0;color:#7C8A85;font-family:var(--f-mono);font-size:.68rem}
+.fixture-nav{display:flex;gap:.5rem;flex-wrap:wrap;margin:0 0 1rem;padding:0;list-style:none}
+.fixture-nav button{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;background:none;border:1px solid #3E4B47;color:#C9D2CD;padding:.55rem .75rem;cursor:pointer}
+.fixture-nav button[aria-current="true"]{background:#C9D2CD;color:var(--screen)}
+.fixture{display:block;background:var(--screen-2);border:1px solid #2C3733;padding:1.1rem;margin-top:1rem}
+.fixture h4{margin:0 0 .55rem;color:#F0F3F0;font-family:var(--f-display);font-size:1.05rem}
+.fixture .fixture-action{font-family:var(--f-mono);font-size:.66rem;color:#7C8A85;margin:.8rem 0 0}
+html:not(.js) .fixture-nav{display:none}
+html:not(.js) .fixture + .fixture{margin-top:1.3rem}
+html.js .fixture{display:none}
+html.js .fixture.is-on{display:block}
+.post-verify{margin-top:1.4rem}
+.sec-last{border-bottom:0}
+.contact-link{margin-top:1.5rem}
+
+/* ── verify block ─────────────────────────── */
+.verify{font-family:var(--f-mono);font-size:.8rem;line-height:1.9;background:var(--paper-2);
+  border-left:2px solid var(--ink);padding:1.15rem 1.3rem;margin:1.5rem 0 0;overflow-x:auto;
+  max-width:var(--measure);white-space:pre-wrap}
+
+/* ── footer ───────────────────────────────── */
+.foot{padding:3rem 0 4rem;font-family:var(--f-mono);font-size:.72rem;line-height:1.9;color:var(--ink-soft)}
+.foot-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr));gap:1.8rem;
+  padding-top:1.4rem;border-top:2px solid var(--ink)}
+.foot strong{display:block;color:var(--ink);font-weight:600;letter-spacing:.13em;
+  text-transform:uppercase;font-size:.66rem;margin-bottom:.55rem}
+
+@media (max-width:820px){
+  .sec{grid-template-columns:1fr;gap:1.2rem}
+  .rail-inner{position:static;display:flex;align-items:center;gap:1rem}
+  .sec-no{margin:0}
+  .ck-grid{grid-template-columns:1fr}
+  .ck-nav{display:flex;overflow-x:auto;gap:.2rem;padding-bottom:.5rem}
+  .ck-nav button{white-space:nowrap;border-left:0;border-bottom:2px solid transparent;width:auto}
+  .ck-nav button[aria-current="true"]{border-left-color:transparent;border-bottom-color:#D98B7A}
+  .ck-nav .n{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms!important;transition-duration:.001ms!important}
+}
+</style>
+<script>document.documentElement.className+=' js';</script>
+</head>
+<body>
+
+<header class="mast">
+  <div class="wrap">
+    <div class="mast-rule"></div>
+    <div class="mast-row">
+      <span class="wordmark">ANANS</span>
+      <span class="mast-meta">Governed execution &middot; Trinidad &amp; Tobago</span>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Admission control for AI agents</p>
+    <h1>Every agent action leaves a receipt.<em>Including the ones that were refused.</em></h1>
+    <p class="lede">ANANS decides, before an agent executes, what it is allowed to touch — and produces evidence afterwards that a reviewer who was never present can check offline, on their own machine, without trusting us.</p>
+    <p class="hero-links">
+      <a href="#walkthrough">See the walkthrough &rarr;</a>
+      <a href="https://github.com/Anans-AI/anans-containment-proofs">Run the proof yourself &rarr;</a>
+      <a href="#state">What is and isn't built &rarr;</a>
+    </p>
+  </div>
+</section>
+
+<div class="wrap">
+
+  <section class="sec">
+    <div class="rail"><div class="rail-inner">
+      <span class="sec-no">01 / PROBLEM</span>
+    </div></div>
+    <div class="body">
+      <h2>Building got fast. Approving didn't.</h2>
+      <p>Coding agents can now produce in an afternoon what used to take a quarter. Everything downstream of production became the constraint: review, sign-off, compliance, and the question nobody can answer cleanly — <em>what exactly did it do while nobody was watching?</em></p>
+      <p>The common answer is a log. A log is written by the thing being audited, and it can only be read by someone who already trusts the system that wrote it. When a regulator, a client, or your own security team asks for proof that an agent stayed inside its authority, a log is an assertion, not evidence.</p>
+      <p>The gap isn't capability. It's that nothing in the stack was built to be checked by a stranger.</p>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="rail"><div class="rail-inner">
+      <span class="sec-no">02 / APPROACH</span>
+    </div></div>
+    <div class="body">
+      <h2>Decide before. Bound during. Prove after.</h2>
+      <p>Three properties, in that order. The order is the design: nothing downstream can repair a decision that was never made.</p>
+      <ul class="props">
+        <li>
+          <h3>Decide before execution</h3>
+          <p>An agent receives a task bound to an authority that already existed — exact action, allowed paths, resource ceiling, and an expiry. Authority is granted by policy or by a person, never assembled by the agent from its own confidence. Absent or ambiguous authority is a refusal, not a warning.</p>
+        </li>
+        <li>
+          <h3>Bound the effect</h3>
+          <p>Agreement among reviewers, ensembles, or planning loops can change what is <em>known</em>. It cannot change what is <em>permitted</em>. A component that evaluates whether a condition is met must not also be able to widen the condition, extend its own window, or approve its own output.</p>
+        </li>
+        <li>
+          <h3>Produce checkable evidence</h3>
+          <p>Every decision, admission, effect, and refusal writes a receipt into a hash-linked record. The record ships with an offline verifier. Someone who was not present, and who has no access to the running system, can determine what the run supports — and, just as importantly, what it does not.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+</div>
+
+<section class="cockpit" id="walkthrough" aria-labelledby="ck-h">
+  <div class="wrap">
+    <div class="ck-head">
+      <h2 id="ck-h">Walkthrough: the build room, cold</h2>
+      <span class="ck-mode">Non-actuating demonstration</span>
+    </div>
+
+    <div class="ck-grid">
+      <nav aria-label="Walkthrough steps">
+        <ul class="ck-nav" id="cknav"></ul>
+      </nav>
+
+      <div class="ck-screen" id="ckscreen">
+
+        <article class="ck-step">
+          <h3><span class="n">01</span>Entry</h3>
+          <p class="ck-say">The first thing the cockpit tells you is what it cannot do. Before any capability is shown, every disabled surface is named.</p>
+          <pre class="ck-panel"><b>ANANS GOVERNED BUILD ROOM</b>
+
+MODE                 NON-ACTUATING DEMONSTRATION
+LIVE EXECUTION       <span class="no">DISABLED</span>
+WORKER DISPATCH      <span class="no">DISABLED</span>
+SOURCE MUTATION      <span class="no">DISABLED</span>
+RUNTIME GUARD        <span class="wa">ATTESTED LOCALLY / SOURCE UNCOMMISSIONED</span>
+PRODUCTION           <span class="no">WITHHELD</span></pre>
+          <p class="ck-note">You should know within five seconds that this is not a live autonomous-agent demo. If a governance product hides that, nothing after it is trustworthy.</p>
+        </article>
+
+        <article class="ck-step">
+          <h3><span class="n">02</span>The objective</h3>
+          <p class="ck-say">Work starts from a bound artifact, not a prompt in someone's history. You can see which file supplied it and check its hash.</p>
+          <pre class="ck-panel"><b>OBJECTIVE</b>
+
+Create a JSON artifact containing:
+  { "environment": "synthetic", "status": "ready" }
+Then verify it contains those exact values.
+
+SOURCE       synthetic_demo_objective.json
+STATE        <span class="ok">BOUND</span>
+SHA-256      3e21e665f5…d92aa535
+AUTHORITY    SYNTHETIC DEMONSTRATION ONLY</pre>
+          <p class="ck-note">An objective describes desired work. On its own it authorises nothing.</p>
+        </article>
+
+        <article class="ck-step">
+          <h3><span class="n">03</span>Authority</h3>
+          <p class="ck-say">Separate from the objective: what this run is permitted to do. Written before execution, not derived from it.</p>
+          <pre class="ck-panel"><b>AUTHORISED</b>
+  execute two declared block types
+  write only beneath the run directory
+  verify the generated JSON
+  emit receipts
+
+<b>NOT AUTHORISED</b>
+  <span class="no">shell or subprocess</span>
+  <span class="no">dynamic import</span>
+  <span class="no">repository access</span>
+  <span class="no">source mutation</span>
+  <span class="no">network or browser</span>
+  <span class="no">spawning further workers</span>
+  <span class="no">merge or promotion</span>
+
+USE          SINGLE-USE
+REPLAY       PROHIBITED
+EXPIRY       AT TERMINAL</pre>
+          <p class="ck-note">“Can it just decide to do more?” No. The graph contains only declared block types; unknown capabilities are rejected rather than interpreted.</p>
+        </article>
+
+        <article class="ck-step">
+          <h3><span class="n">04</span>Work graph</h3>
+          <p class="ck-say">The whole of what this agent can do, shown as a graph. There is no general coding agent behind it.</p>
+          <pre class="ck-panel">BLOCK_A   <b>EMIT_JSON</b>
+   │  out    synthetic_output.json
+   │  path   synthetic_demo/output/
+   │  ends   BLOCK_A_PASS | BLOCK_A_REFUSED
+   ▼
+BLOCK_B   <b>ASSERT_JSON</b>
+      in     synthetic_output.json
+      checks environment=synthetic status=ready
+      ends   BLOCK_B_PASS | BLOCK_B_ASSERTION_FAILURE
+
+EXECUTOR EXPOSES:  EMIT_JSON, ASSERT_JSON</pre>
+          <p class="ck-note">Two verbs. That is the entire surface. Narrowness here is the point, not a limitation of the demo.</p>
+        </article>
+
+        <article class="ck-step">
+          <h3><span class="n">05</span>Budget</h3>
+          <p class="ck-say">Ceilings are declared before the run and are terminal conditions rather than warnings.</p>
+          <pre class="ck-panel">BLOCKS               2 maximum
+EXECUTION ATTEMPTS   1
+AUTHORISED PATHS     1
+NETWORK CALLS        0
+SUBPROCESSES         0
+WORKERS SPAWNED      0
+PRODUCTION EFFECTS   0</pre>
+          <p class="ck-note">This budget is a declaration bound to a synthetic packet. It is not evidence that an uncommissioned live guard enforces production budgets. The cockpit says so on the panel itself.</p>
+        </article>
+
+        <article class="ck-step">
+          <h3><span class="n">06</span>Execution trace</h3>
+          <p class="ck-say">What happened, in order. Every line links to the receipt that supports it.</p>
+          <pre class="ck-panel"> 1  invocation admitted
+ 2  graph schema validated
+ 3  dependency order validated
+ 4  single-use authorisation minted
+ 5  BLOCK_A entered
+ 6  synthetic_output.json emitted
+ 7  BLOCK_A receipt generated
+ 8  BLOCK_B entered
+ 9  JSON assertion <span class="ok">passed</span>
+10  BLOCK_B receipt generated
+11  receipt chain reconciled
+12  terminal: <span class="ok">SYNTHETIC_EXECUTION_COMPLETE</span>
+13  authorisation consumed</pre>
+          <p class="ck-note">Switching from summary to evidence shows artifact path, size, SHA-256, producing block, receipt ID, and validation state for each step.</p>
+        </article>
+
+        <article class="ck-step">
+          <h3><span class="n">07</span>Replay denied</h3>
+          <p class="ck-say">The same invocation with the same authorisation, attempted twice. Single-use means single-use.</p>
+          <pre class="ck-panel">REQUEST            same invocation, same authorisation
+RESULT             <span class="no">REPLAY_DENIED</span>
+FILESYSTEM DELTA   none
+MANIFEST BEFORE    identical
+MANIFEST AFTER     identical
+
+EVIDENCE TYPE      FROZEN LOCAL RESULT
+NOT                INDEPENDENT EXTERNAL REPRODUCTION</pre>
+          <p class="ck-note">“How do I know it didn't write again?” The before and after manifests are both shown. No hash and no size changed.</p>
+        </article>
+
+        <article class="ck-step">
+          <h3><span class="n">08</span>Refusal</h3>
+          <p class="ck-say">A request arrives without a declared receipt contract. This is the case that matters most.</p>
+          <pre class="ck-panel">REQUEST            execute declared graph
+RECEIPT CONTRACT   <span class="no">MISSING</span>
+
+DECISION           <span class="no">DENY_FAIL_CLOSED</span>
+EXECUTION ENTERED  no
+OUTPUTS CREATED    0
+
+REASON             REQUIRED EXECUTION EVIDENCE NOT DECLARED</pre>
+          <p class="ck-note">A refused request produces an inspectable state, not silence. Systems that fail quietly are the ones you cannot audit later.</p>
+        </article>
+
+        <article class="ck-step">
+          <h3><span class="n">09</span>Adverse evidence</h3>
+          <p class="ck-say">Historical findings and current blockers are shown next to the successful run, not filed away from it.</p>
+          <pre class="ck-panel"><b>RUNTIME GUARD — HISTORICAL</b>
+  hostile chain, earlier candidate   5 passed / 10 failed
+  classification                     <span class="wa">NECESSARY_BUT_DEFECTIVE</span>
+  current source state               <span class="no">UNCOMMISSIONED</span>
+  live use                           <span class="no">PROHIBITED</span>
+
+<b>OWNER IDENTITY EXPORT</b>
+  authority                          present
+  execution                          <span class="wa">not entered</span>
+  reason                             eligible owner identity inactive</pre>
+          <p class="ck-note">Why show failures to a visitor? Because a record with the failures removed cannot be relied on for the parts that remain.</p>
+        </article>
+
+        <article class="ck-step">
+          <h3><span class="n">10</span>Admission state</h3>
+          <p class="ck-say">Four separate questions, four separate answers. They are never collapsed into one green light.</p>
+          <pre class="ck-panel"><b>SYNTHETIC EXECUTOR</b>
+  local result          <span class="ok">PASS</span>
+  production admission  <span class="no">WITHHELD</span>
+  external validation   <span class="no">NOT PERFORMED</span>
+
+<b>RUNTIME GUARD</b>
+  repair                <span class="wa">ATTESTED LOCALLY</span>
+  authoritative source  <span class="no">UNCOMMISSIONED</span>
+  live execution        <span class="no">PROHIBITED</span>
+  next gate             OWNER IDENTITY SOURCE EXPORT</pre>
+          <p class="ck-note">A single status light is a claim that four independent questions have the same answer. They rarely do.</p>
+        </article>
+
+        <article class="ck-step">
+          <h3><span class="n">11</span>Forbidden action</h3>
+          <p class="ck-say">The visitor presses a clearly marked control that asks for live worker dispatch.</p>
+          <pre class="ck-panel">REQUEST            <b>LIVE WORKER DISPATCH</b>
+
+RESULT             <span class="no">REJECTED</span>
+  LIVE_EXECUTION_DISABLED
+  WORKER_DISPATCH_DISABLED
+  RUNTIMEGUARD_COMMISSIONING_NOT_ASSUMED
+
+EXTERNAL ACTION    none
+RECEIPT            issued for the refusal</pre>
+          <p class="ck-note">Even a forbidden action produces evidence. A greyed-out button tells you nothing; a receipted refusal tells you the boundary was reached and held.</p>
+        </article>
+
+        <article class="ck-step">
+          <h3><span class="n">12</span>What you should conclude</h3>
+          <p class="ck-say">The walkthrough succeeds only if you leave with an accurate picture — which is narrower than a demo usually wants to give you.</p>
+          <pre class="ck-panel"><b>A real governed control and evidence layer exists locally.</b>
+<b>Its live execution boundary is deliberately disconnected.</b>
+
+You should be able to answer:
+  what was requested
+  what authority existed
+  what was permitted
+  what actually happened
+  what evidence supports it
+  what failed or remains blocked
+  why promotion was withheld
+  what must happen before live execution
+
+You should <span class="no">not</span> conclude:
+  that this is production-ready
+  that agents can touch real repositories today
+  that any external validation exists</pre>
+          <p class="ck-note">The walkthrough fails if you leave thinking “nothing real exists” or “this is already autonomous.” The truth sits between those, and it is checkable.</p>
+        </article>
+
+        <div class="ck-foot">
+          <button class="ck-btn" id="ck-prev" type="button">&larr; Back</button>
+          <span class="ck-count" id="ck-count"></span>
+          <button class="ck-btn" id="ck-next" type="button">Next &rarr;</button>
+        </div>
+      </div>
+    </div>
+
+    <section class="compare" aria-labelledby="compare-h">
+      <div class="compare-head">
+        <h3 id="compare-h">Compare recorded states</h3>
+        <p>Frozen demonstrations only · no live execution</p>
+      </div>
+      <ul class="fixture-nav" id="fixture-nav" aria-label="Recorded state fixtures"></ul>
+      <div id="fixture-screen">
+        <article class="fixture">
+          <h4>Lawful completion</h4>
+          <pre class="ck-panel">AUTHORITY           PRESENT
+GRAPH               2 DECLARED BLOCKS
+RESULT              <span class="ok">COMPLETE</span>
+REPLAY              <span class="no">DENIED</span>
+PRODUCTION          <span class="no">WITHHELD</span></pre>
+          <p class="fixture-action">View recorded execution · inspect receipt chain</p>
+        </article>
+        <article class="fixture">
+          <h4>Fail-closed refusal</h4>
+          <pre class="ck-panel">RECEIPT CONTRACT    <span class="no">MISSING</span>
+EXECUTION ENTERED   NO
+OUTPUTS CREATED     0
+DECISION            <span class="no">DENY_FAIL_CLOSED</span>
+REFUSAL RECEIPT     ISSUED</pre>
+          <p class="fixture-action">Inspect refusal · compare authority boundary</p>
+        </article>
+        <article class="fixture">
+          <h4>Uncommissioned repair</h4>
+          <pre class="ck-panel">REPAIR              <span class="wa">LOCALLY ATTESTED</span>
+AUTHORITATIVE SOURCE <span class="no">UNCOMMISSIONED</span>
+LIVE USE             <span class="no">PROHIBITED</span>
+NEXT GATE            SOURCE-CUSTODY PREREQUISITE
+PRODUCTION           <span class="no">WITHHELD</span></pre>
+          <p class="fixture-action">Inspect admission state · view next lawful gate</p>
+        </article>
+      </div>
+    </section>
+  </div>
+</section>
+
+<div class="wrap">
+
+  <section class="sec" id="state">
+    <div class="rail"><div class="rail-inner">
+      <span class="sec-no">03 / STATE</span>
+      <span class="stamp open">Mixed &middot; read the column</span>
+    </div></div>
+    <div class="body">
+      <h2>Where this actually stands</h2>
+      <p>Four different states, kept apart on purpose. A specification is not an implementation, an implementation is not a validation, and a validation on our own machines is not external proof.</p>
+      <table class="ledger">
+        <thead><tr><th>Component</th><th>State</th><th>What that means</th></tr></thead>
+        <tbody>
+          <tr><td>Admission control &amp; authority binding</td><td class="state s-pass">Built &middot; validated locally</td><td>Expiry, scope, and path enforcement with passing test suites on our hardware.</td></tr>
+          <tr><td>Receipt spine &amp; offline verifier</td><td class="state s-pass">Built &middot; published</td><td>A signed evidence bundle and a portable verifier are public. Anyone can run them.</td></tr>
+          <tr><td>Bounded execution lifecycle</td><td class="state s-pass">Built &middot; frozen reference</td><td>A complete governed run, hash-bound and reproducible against its own frozen source.</td></tr>
+          <tr><td>Build-room cockpit</td><td class="state s-open">Built &middot; non-actuating</td><td>Displays authority, evidence, and refusals. Deliberately not wired to live execution.</td></tr>
+          <tr><td>Live agent dispatch</td><td class="state s-hold">Withheld</td><td>The runtime guard's authoritative source has not been commissioned. Not available.</td></tr>
+          <tr><td>Governed component registry</td><td class="state s-hold">Specified &middot; not built</td><td>Designed and catalogued. No implementation claim is made.</td></tr>
+          <tr><td>Independent external validation</td><td class="state s-hold">Not performed</td><td>No third party has audited the system.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="rail"><div class="rail-inner">
+      <span class="sec-no">04 / NON-CLAIMS</span>
+      <span class="stamp hold">Stated, not buried</span>
+    </div></div>
+    <div class="body">
+      <h2>What this page does not claim</h2>
+      <p class="lede">A system whose entire premise is disclosing its own limits has to start with its own. If any of the following is later true, it will be said here in the same size type.</p>
+      <ul class="negs">
+        <li>ANANS is not production-ready and is not for sale as a running service.</li>
+        <li>No agent can currently modify a customer repository through ANANS.</li>
+        <li>No independent party has audited the architecture, the source, or the claims.</li>
+        <li>The public proof bundle covers one bounded run. It does not establish that every execution path is non-bypassable.</li>
+        <li>Local validation is not external reproduction, and passing our own tests is not evidence about anyone else's environment.</li>
+        <li>No commercial demand for this has been demonstrated.</li>
+        <li>The synthetic executor is not a general coding agent. It performs two declared block types.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="rail"><div class="rail-inner">
+      <span class="sec-no">05 / VERIFY</span>
+      <span class="stamp pass">Public &middot; runnable</span>
+    </div></div>
+    <div class="body">
+      <h2>Don't take any of this on trust</h2>
+      <p>The evidence bundle is public, offline-verifiable, and signed. It contains no proprietary source and no private keys. Clone it, run the verifier, and decide for yourself what it does and doesn't prove.</p>
+      <pre class="verify">git clone https://github.com/Anans-AI/anans-containment-proofs
+cd anans-containment-proofs/proofs/nist-ma12/v0.1.0-audit
+
+python3 -m pip install pynacl
+python3 EVIDENCE/VERIFY.py --evidence_dir EVIDENCE
+
+# Windows (PowerShell or Command Prompt):
+py -m pip install pynacl
+py EVIDENCE\VERIFY.py --evidence_dir EVIDENCE
+
+# expected: VERIFY PASS</pre>
+      <p class="post-verify">A passing result is bounded. It tells you the recorded run is internally consistent and independently inspectable. It does not tell you who controlled the signing key, whether the harness was complete, or whether every relevant path was tested. Those remain open, and the bundle says so.</p>
+    </div>
+  </section>
+
+  <section class="sec sec-last">
+    <div class="rail"><div class="rail-inner">
+      <span class="sec-no">06 / CONTACT</span>
+    </div></div>
+    <div class="body">
+      <h2>Who this is for right now</h2>
+      <p>Not buyers — there is nothing to buy yet. This is for people evaluating whether AI workers can be allowed near controlled software, and for reviewers willing to break something and say so.</p>
+      <p>If you run the bundle, the most useful thing you can send back is not whether it passed. It is the list of things you still had to trust after it passed.</p>
+      <p class="contact-link"><a href="mailto:hello@anansai.org">hello@anansai.org</a></p>
+    </div>
+  </section>
+
+</div>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div><strong>Evidence</strong>
+        <a href="https://github.com/Anans-AI/anans-containment-proofs">Containment proofs</a><br>
+        Public verifier &amp; signed bundle
+      </div>
+      <div><strong>Writing</strong>
+        <a href="https://anansai.substack.com">anansai.substack.com</a><br>
+        <a href="https://undomesticatedai.com">undomesticatedai.com</a>
+      </div>
+      <div><strong>Public record</strong>
+        NIST AI-agent security inquiry<br>
+        Docket comment NIST-2025-0035-0009
+      </div>
+      <div><strong>Built in</strong>
+        Trinidad &amp; Tobago<br>
+        &copy; 2026 ANANS
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var screen=document.getElementById('ckscreen');
+  var steps=[].slice.call(screen.querySelectorAll('.ck-step'));
+  var nav=document.getElementById('cknav');
+  var prev=document.getElementById('ck-prev'), next=document.getElementById('ck-next');
+  var count=document.getElementById('ck-count');
+  if(!steps.length) return;
+  var idx=0;
+
+  steps.forEach(function(step,i){
+    step.id='ck-step-'+(i+1);
+    var label=step.querySelector('h3').textContent.replace(/^\s*\d+\s*/,'').trim();
+    var li=document.createElement('li'), b=document.createElement('button');
+    b.type='button';
+    b.innerHTML='<span class="n">'+String(i+1).padStart(2,'0')+'</span>'+label;
+    b.addEventListener('click',function(){show(i);});
+    li.appendChild(b); nav.appendChild(li);
+  });
+
+  function show(i){
+    idx=Math.max(0,Math.min(steps.length-1,i));
+    steps.forEach(function(s,j){s.classList.toggle('is-on',j===idx);});
+    [].slice.call(nav.querySelectorAll('button')).forEach(function(b,j){
+      b.setAttribute('aria-current', j===idx?'true':'false');
+    });
+    count.textContent=String(idx+1).padStart(2,'0')+' / '+String(steps.length).padStart(2,'0');
+    prev.disabled=idx===0; next.disabled=idx===steps.length-1;
+  }
+  prev.addEventListener('click',function(){show(idx-1);});
+  next.addEventListener('click',function(){show(idx+1);});
+  show(0);
+
+  var fixtureScreen=document.getElementById('fixture-screen');
+  var fixtures=[].slice.call(fixtureScreen.querySelectorAll('.fixture'));
+  var fixtureNav=document.getElementById('fixture-nav');
+  fixtures.forEach(function(fixture,i){
+    var li=document.createElement('li'), b=document.createElement('button');
+    b.type='button';
+    b.textContent=fixture.querySelector('h4').textContent;
+    b.addEventListener('click',function(){showFixture(i);});
+    li.appendChild(b); fixtureNav.appendChild(li);
+  });
+  function showFixture(i){
+    fixtures.forEach(function(f,j){f.classList.toggle('is-on',j===i);});
+    [].slice.call(fixtureNav.querySelectorAll('button')).forEach(function(b,j){
+      b.setAttribute('aria-current',j===i?'true':'false');
+    });
+  }
+  showFixture(0);
+})();
+</script>
+</body>
+</html>
