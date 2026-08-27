@@ -3,276 +3,123 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'none'; img-src 'self' data:; font-src 'none'; connect-src 'none'; media-src 'none'; style-src 'sha256-ygWFIR578GtF1BEOAtNzVyN0mNEK/riP0hMKSngh0r8='; script-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
-<title>ANANS — test the boundary before the agent acts</title>
-<meta name="description" content="ANANS develops governed machine autonomy. Its public proof surface starts with a narrower question: can an AI agent cross an authority boundary it was not permitted to cross?">
-<meta property="og:title" content="ANANS — test the boundary before the agent acts">
-<meta property="og:description" content="Define the authority envelope, pressure a forbidden action, preserve receipt-bound evidence, and claim only what the evidence supports.">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'none'; img-src 'self' data:; font-src 'none'; connect-src 'none'; media-src 'none'; style-src 'self'; script-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
+<title>ANANS — test the boundary before trust</title>
+<meta name="description" content="ANANS develops governed machine autonomy. Its public surface publishes bounded claims and evidence without exposing unreleased implementation strategy.">
+<meta property="og:title" content="ANANS — test the boundary before trust">
+<meta property="og:description" content="One bounded public proof, a high-level governance model, and explicit claim boundaries.">
 <meta property="og:type" content="website">
-<style>
-:root{
-  --paper:#f1f0ea;--paper2:#e7e6df;--ink:#111713;--muted:#55605a;--rule:#c7c7be;
-  --deep:#0e1511;--deep2:#162019;--green:#2f684b;--amber:#8e6b20;--red:#9a4434;
-  --sans:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  --serif:Georgia,Cambria,"Times New Roman",serif;
-  --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
-  --gutter:clamp(1rem,4vw,3rem);--measure:68ch
-}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--paper);color:var(--ink);font:400 clamp(.98rem,.84rem + .32vw,1.08rem)/1.64 var(--serif)}
-a{color:inherit;text-decoration-thickness:1px;text-underline-offset:.2em}
-a:hover{color:var(--green)}
-.wrap{width:min(1180px,calc(100% - 2*var(--gutter)));margin-inline:auto}
-.mast{border-top:4px solid var(--ink);padding:.82rem 0;border-bottom:1px solid var(--rule);background:rgba(241,240,234,.96)}
-.mast-row{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
-.wordmark{font:800 .96rem/1 var(--sans);letter-spacing:.21em}
-.meta,.nav,.kicker,.label,.status,.eyebrow,.version,.mini{font-family:var(--mono);text-transform:uppercase;letter-spacing:.11em}
-.meta{font-size:.61rem;color:var(--muted)}
-.nav{display:flex;gap:1rem;flex-wrap:wrap;font-size:.62rem}
-.nav a{text-decoration:none;border-bottom:1px solid transparent}.nav a:hover,.nav a[aria-current="page"]{border-color:currentColor}
-.hero{position:relative;overflow:hidden;padding:clamp(4.6rem,10vw,8.2rem) 0 clamp(3rem,7vw,5.8rem);border-bottom:1px solid var(--rule)}
-.hero:after{content:"";position:absolute;inset:0;pointer-events:none;background:
- linear-gradient(90deg,transparent 0 49.9%,rgba(17,23,19,.035) 50% 50.1%,transparent 50.2%),
- linear-gradient(rgba(17,23,19,.025) 1px,transparent 1px);background-size:100% 100%,100% 54px;
- mask-image:linear-gradient(to bottom,black,transparent 88%)}
-.hero-grid{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1.55fr) minmax(260px,.72fr);gap:clamp(2rem,6vw,5rem);align-items:end}
-.eyebrow{font-size:.65rem;color:var(--green);font-weight:700;margin:0 0 1rem}
-h1{font:800 clamp(2.8rem,1.4rem + 5.7vw,6rem)/.92 var(--sans);letter-spacing:-.052em;max-width:12ch;margin:0;text-wrap:balance}
-h1 em{display:block;font-family:var(--serif);font-weight:400;font-style:italic;color:var(--muted);letter-spacing:-.035em}
-.lede{max-width:var(--measure);font-size:1.12em;margin:1.7rem 0 0}
-.hero-aside{border-top:2px solid var(--ink);padding-top:1rem}
-.version{display:inline-block;border:1px solid var(--green);color:var(--green);font-size:.6rem;padding:.45rem .55rem;margin-bottom:.9rem}
-.hero-aside p{margin:.55rem 0 0;color:var(--muted);font-size:.93em}
-.actions{display:flex;gap:.8rem;flex-wrap:wrap;margin-top:1.5rem;font:600 .67rem/1.4 var(--mono);letter-spacing:.04em}
-.actions a{padding:.7rem .85rem;border:1px solid var(--ink);text-decoration:none}.actions .primary{background:var(--ink);color:var(--paper)}
-.actions a:hover{background:var(--green);border-color:var(--green);color:#fff}
-.band{background:var(--deep);color:#dce3df;padding:clamp(3rem,6vw,5rem) 0}
-.band-grid{display:grid;grid-template-columns:1fr 2fr;gap:clamp(2rem,6vw,6rem);align-items:start}
-.band .kicker{font-size:.62rem;color:#91a198}
-.band blockquote{margin:0;font:500 clamp(1.8rem,1.2rem + 2.2vw,3.35rem)/1.08 var(--sans);letter-spacing:-.025em;color:#f5f7f5;max-width:22ch}
-.band blockquote span{display:block;margin-top:1rem;font:400 italic .56em/1.4 var(--serif);color:#acb9b2;letter-spacing:-.01em}
-.section{padding:clamp(3.5rem,7vw,6rem) 0;border-bottom:1px solid var(--rule)}
-.section-head{display:grid;grid-template-columns:13rem 1fr;gap:2rem;margin-bottom:2.2rem}
-.kicker{font-size:.62rem;color:var(--muted)}
-.section h2{font:760 clamp(1.8rem,1.3rem + 1.7vw,3rem)/1.04 var(--sans);letter-spacing:-.035em;margin:0;max-width:21ch}
-.section-intro{max-width:var(--measure);font-size:1.05em;margin:.9rem 0 0;color:#2f3934}
-.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule)}
-.card{background:var(--paper);padding:1.4rem;min-height:10rem}
-.card .label{font-size:.58rem;color:var(--muted)}.card h3{font:700 1.04rem/1.18 var(--sans);margin:.6rem 0 .55rem;letter-spacing:-.015em}.card p{margin:0;color:#3d4742;font-size:.94em}
-.status{display:inline-block;margin-top:1rem;font-size:.55rem;font-weight:700}.pass{color:var(--green)}.open{color:var(--amber)}.hold{color:var(--red)}
-.diagram{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(290px,.8fr);gap:clamp(2rem,5vw,4rem)}
-pre,.mono{margin:0;background:var(--deep2);color:#dce5df;padding:1.35rem;border:1px solid #2a3930;overflow:auto;font:500 .73rem/1.75 var(--mono);white-space:pre-wrap}
-.stack{display:grid;gap:1rem}.stack-item{padding:1rem 0;border-top:1px solid var(--rule)}.stack-item:first-child{border-top:2px solid var(--ink)}
-.stack-item h3{font:700 .93rem/1.2 var(--sans);margin:0 0 .35rem}.stack-item p{margin:0;color:var(--muted);font-size:.92em}
-.timeline{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border-top:2px solid var(--ink)}
-.step{padding:1.1rem 1rem 1.3rem 0;border-right:1px solid var(--rule)}.step:last-child{border-right:0}
-.step .n{font:700 .59rem/1 var(--mono);color:var(--green);letter-spacing:.12em}.step h3{font:700 .95rem/1.15 var(--sans);margin:.55rem 0}.step p{font-size:.88em;color:var(--muted);margin:0}
-.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);margin-top:1.5rem}
-.metric{background:var(--paper2);padding:1rem}.metric b{display:block;font:760 1.42rem/1 var(--sans);letter-spacing:-.03em}.metric span{display:block;margin-top:.35rem;font:.57rem/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.table-wrap{overflow:auto;border-top:2px solid var(--ink)}table{width:100%;border-collapse:collapse;min-width:760px;font-size:.91em}
-th{text-align:left;font:700 .58rem/1.3 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:.7rem .8rem .7rem 0;border-bottom:1px solid var(--rule)}
-td{vertical-align:top;padding:.8rem .8rem .8rem 0;border-bottom:1px solid var(--rule)}td.state{font:700 .57rem/1.4 var(--mono);letter-spacing:.07em;text-transform:uppercase;white-space:nowrap}
-.triad{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}.triad-item{padding:1.3rem;border:1px solid var(--rule);background:var(--paper2)}
-.triad-item .big{font:800 clamp(1.25rem,1rem + .8vw,1.8rem)/1.05 var(--sans);margin:.4rem 0 .7rem}.triad-item p{margin:0;color:var(--muted);font-size:.93em}
-.nonclaims,.safe-list{display:grid;grid-template-columns:1fr 1fr;gap:1rem 3rem;margin:0;padding:0;list-style:none}
-.nonclaims li,.safe-list li{position:relative;padding:.9rem 0 .9rem 1.5rem;border-top:1px solid var(--rule)}
-.nonclaims li:before{content:"—";position:absolute;left:0;color:var(--red);font-family:var(--mono)}
-.safe-list li:before{content:"✓";position:absolute;left:0;color:var(--green);font-family:var(--mono)}
-.callout{padding:1.35rem;border:1px solid var(--rule);background:var(--paper2);max-width:var(--measure)}
-.callout .label{font-size:.58rem;color:var(--muted)}.callout p{margin:.55rem 0 0}
-.next-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule)}
-.next-item{background:var(--paper);padding:1.2rem}.next-item b{font:700 .92rem/1.2 var(--sans)}.next-item p{margin:.55rem 0 0;color:var(--muted);font-size:.9em}
-.footer{padding:2.6rem 0 4rem;background:var(--deep);color:#aebbb4}.footer-grid{display:grid;grid-template-columns:1.3fr repeat(3,1fr);gap:2rem}
-.footer h3{font:700 .62rem/1.4 var(--mono);letter-spacing:.11em;text-transform:uppercase;color:#eef3f0;margin:0 0 .6rem}.footer p,.footer a{font-size:.82rem}.footer a{color:#cbd6d0}.footer .mark{font:800 1rem/1 var(--sans);letter-spacing:.2em;color:white}
-@media(max-width:900px){
-  .hero-grid,.band-grid,.section-head,.diagram{grid-template-columns:1fr}
-  .cards{grid-template-columns:1fr 1fr}.timeline{grid-template-columns:1fr 1fr}.metrics{grid-template-columns:1fr 1fr}.next-grid{grid-template-columns:1fr 1fr}.footer-grid{grid-template-columns:1fr 1fr}
-  .section-head{gap:.6rem}
-}
-@media(max-width:620px){
-  .meta{display:none}.nav{width:100%;justify-content:space-between}.hero{padding-top:3.5rem}
-  h1{font-size:clamp(2.6rem,14vw,4.2rem)}.cards,.triad,.nonclaims,.safe-list,.timeline,.metrics,.next-grid,.footer-grid{grid-template-columns:1fr}
-  .step{border-right:0;border-bottom:1px solid var(--rule)}.section{padding:3rem 0}.actions a{width:100%;text-align:center}
-}
-</style>
+<link rel="stylesheet" href="site.css">
 </head>
 <body>
 <header class="mast"><div class="wrap mast-row">
-<div class="wordmark">ANANS</div><div class="meta">Governed machine autonomy · Trinidad &amp; Tobago</div><nav class="nav" aria-label="Primary">
+<div class="wordmark">ANANS</div>
+<div class="meta">Governed machine autonomy · Trinidad &amp; Tobago</div>
+<nav class="nav" aria-label="Primary">
 <a aria-current="page" href="#proof">Public proof</a>
 <a href="governance.html">Governance</a>
-<a href="#milestone">Cognitive Exoskeleton</a>
+<a href="#ce">Cognitive Exoskeleton</a>
 <a href="#evidence">Evidence</a>
-<a href="#next">Next frontier</a>
+<a href="#contact">Contact</a>
 </nav>
 </div></header>
+
 <main>
 <section class="hero"><div class="wrap hero-grid">
 <div>
-<p class="eyebrow">Public wedge · bounded authority assurance</p>
+<p class="eyebrow">Public evidence surface</p>
 <h1>Can this agent do something it must not?<em>Test the boundary before trust.</em></h1>
-<p class="lede">ANANS develops governed machine autonomy. Its public entry point is narrower: define an exact authority envelope, pressure a forbidden action, preserve receipt-bound evidence, and state only what the evidence supports. A current public proof demonstrates one bounded denial. It does not certify an agent, establish universal containment, or imply production readiness.</p>
-<div class="actions"><a class="primary" href="https://github.com/Anans-AI/anans-containment-proofs">Verify the public proof</a><a href="#milestone">See the deeper machine</a></div>
+<p class="lede">ANANS develops governed machine autonomy. The public surface is intentionally narrow: publish an admitted bounded claim, the evidence needed to inspect it, and the limits of what that evidence establishes. Unreleased proof design and implementation strategy remain private.</p>
+<div class="actions">
+<a class="primary" href="https://github.com/Anans-AI/anans-containment-proofs">Verify the public proof</a>
+<a href="governance.html">Read the governance principles</a>
+</div>
 </div>
 <aside class="hero-aside">
 <span class="version">NIST-MA12-001 · frozen public proof</span>
-<p><strong>The selected constraint denied the recorded forbidden action.</strong></p>
-<p>The included offline verifier reports <code>VERIFY PASS</code> for the released evidence bundle.</p>
-<p>Bounded evidence only. Not NIST endorsement. Not OS-level containment. Not independent validation of ANANS as a whole.</p>
+<p><strong>The selected constraint denied the recorded forbidden action in the bounded harness.</strong></p>
+<p>The released bundle includes an offline verifier with expected terminal <code>VERIFY PASS</code>.</p>
+<p>Bounded evidence only. Not NIST endorsement. Not universal containment. Not production readiness.</p>
 </aside>
 </div></section>
 
 <section class="band"><div class="wrap band-grid">
-<div class="kicker">01 / Boundary</div>
-<blockquote>The question is not only what the agent can reason about. It is what the surrounding system will let it do.
-<span>Capability may expand. Consequential authority does not.</span></blockquote>
+<div class="kicker">01 / Constitutional law</div>
+<blockquote>Capability can expand without consequential authority expanding.</blockquote>
 </div></section>
 
 <section class="section" id="proof"><div class="wrap">
-<div class="section-head"><div class="kicker">02 / Public proof</div><div>
-<h2>One bounded claim. Verifiable offline.</h2>
-<p class="section-intro">The public proof surface is deliberately smaller than the private ANANS system. It exposes enough evidence to inspect one bounded claim without exposing proprietary source, private infrastructure, or private keys.</p>
+<div class="section-head"><div class="kicker">02 / Released proof</div><div>
+<h2>One claim. One frozen evidence bundle. Offline verification.</h2>
+<p class="section-intro">The public proof repository is an evidence membrane, not a development workspace. It exposes the released evidence and verifier required to inspect the admitted claim; unreleased proof machinery stays private.</p>
 </div></div>
 <div class="cards">
-<article class="card"><div class="label">Envelope</div><h3>State the forbidden action</h3><p>Bind the claim to an explicit constraint and a recorded test boundary rather than a general statement about safety.</p><div class="status pass">Bounded claim</div></article>
-<article class="card"><div class="label">Pressure</div><h3>Attempt the boundary</h3><p>The current released harness records the selected constraint denying the recorded forbidden action.</p><div class="status pass">Recorded denial</div></article>
-<article class="card"><div class="label">Receipt</div><h3>Verify after the fact</h3><p>Clone the evidence bundle, run the included verifier offline, and require the exact terminal <code>VERIFY PASS</code>.</p><div class="status pass">Frozen verifier</div></article>
+<article class="card"><div class="label">Claim</div><h3>Bound the statement</h3><p>The release states exactly what was denied in the recorded harness and avoids general safety claims.</p><div class="status pass">Published</div></article>
+<article class="card"><div class="label">Evidence</div><h3>Freeze the record</h3><p>The public release binds the evidence bundle to a specific version and public hashes.</p><div class="status pass">Frozen</div></article>
+<article class="card"><div class="label">Verification</div><h3>Reproduce the check</h3><p>A reviewer can run the included verifier offline against the released evidence.</p><div class="status pass">Public on-ramp</div></article>
 </div>
-<div class="actions"><a class="primary" href="https://github.com/Anans-AI/anans-containment-proofs">Open containment proofs</a><a href="governance.html">See the governance substrate</a></div>
+<div class="proofbox">
+<strong>Current public verification command</strong>
+<pre>cd proofs/nist-ma12/v0.1.0-audit
+python EVIDENCE/VERIFY.py --evidence_dir EVIDENCE</pre>
+</div>
 </div></section>
 
-<section class="section"><div class="wrap">
-<div class="section-head"><div class="kicker">03 / Constitution</div><div>
-<h2>High autonomy inside an authority envelope it does not control.</h2>
-<p class="section-intro">ANANS separates purpose, authority, goals, capabilities, and execution. The machine can become more capable and more organizationally autonomous without becoming the source of its own legitimacy.</p>
+<section class="section" id="ce"><div class="wrap">
+<div class="section-head"><div class="kicker">03 / Larger system</div><div>
+<h2>The proof is narrower than the Cognitive Exoskeleton.</h2>
+<p class="section-intro">ANANS is developing a persistent machine organization that can form intermediate goals and coordinate bounded work downstream of externally held purpose and consequential authority. The public proof does not claim to validate that whole system.</p>
 </div></div>
 <div class="cards">
-<article class="card"><div class="label">Purpose</div><h3>Purpose remains external</h3><p>The Founder defines what the system is for, the constitutional constraints it must obey, and the consequential authority it may exercise.</p><div class="status hold">Founder-held</div></article>
-<article class="card"><div class="label">Initiative</div><h3>Intermediate goals may be endogenous</h3><p>The CE can observe a bounded environment, generate alternatives, distinguish reuse from new work and abstention, and determine what should happen next.</p><div class="status pass">Locally demonstrated</div></article>
-<article class="card"><div class="label">Authority</div><h3>Capability does not create permission</h3><p>Better reasoning, successful execution, accumulated capability, or economic performance may change what the system can do. None can enlarge what it is permitted to do.</p><div class="status pass">Boundary held locally</div></article>
-</div></div></section>
-
-<section class="section"><div class="wrap">
-<div class="section-head"><div class="kicker">04 / System model</div><div>
-<h2>A machine organization, not a sovereign agent.</h2>
-<p class="section-intro">The public architecture is intentionally high-level. Organizational initiative remains separated from governance and consequential actuation.</p>
-</div></div>
-<div class="diagram">
-<pre>FOUNDER
-  purpose + consequential authority
-          │
-          ▼
-COGNITIVE EXOSKELETON
-  observes
-  generates intermediate goals
-  prioritizes
-  reuses or creates bounded work
-  organizes operating units
-          │
-          ▼
-GOVERNANCE BOUNDARY
-  authority + admission + limits
-          │
-          ▼
-BOUNDED EFFECTS + RECEIPTS
-
-GOAL GENERATION != AUTHORITY GENERATION
-AUTONOMIC OPERATION != SELF-AUTHORIZATION</pre>
-<div class="stack">
-<div class="stack-item"><h3>Endogenous cognition</h3><p>Observe, generate alternatives, prioritize, reuse, create bounded work, or abstain.</p></div>
-<div class="stack-item"><h3>Persistent organization</h3><p>Maintain goal and work identity across restart, recover state, and reprioritize after environmental change.</p></div>
-<div class="stack-item"><h3>Bounded operating units</h3><p>Allocate work and delegated resources across distinct machine units under centralized authority.</p></div>
-<div class="stack-item"><h3>Evidence-driven allocation</h3><p>Use contribution and cost evidence to adjust simulated allocation without allowing workers or units to grant themselves authority.</p></div>
-</div></div></div></section>
-
-<section class="section" id="milestone"><div class="wrap">
-<div class="section-head"><div class="kicker">05 / Research milestone</div><div>
-<h2>A bounded Cognitive Exoskeleton now operates as a local machine organization.</h2>
-<p class="section-intro">On 23 August 2026, ANANS froze <code>cognitive-exoskeleton-v0.3.0-local-autonomic-organization</code> after a five-run gated local sprint. All five organizational stages passed locally.</p>
-</div></div>
-<div class="timeline">
-<article class="step"><span class="n">01</span><h3>Goal formation</h3><p>Generated and prioritized intermediate goals from Founder purpose plus observed state.</p></article>
-<article class="step"><span class="n">02</span><h3>Runtime continuity</h3><p>Persisted goal and work state across runtime boundaries and resumed without per-cycle Founder prompting.</p></article>
-<article class="step"><span class="n">03</span><h3>Reprioritization</h3><p>Re-observed changed conditions and revised priorities rather than preserving stale priority by default.</p></article>
-<article class="step"><span class="n">04</span><h3>Operating units</h3><p>Organized bounded machine units with distinct objectives, work portfolios, and delegated resource ceilings.</p></article>
-<article class="step"><span class="n">05</span><h3>Shadow continuity</h3><p>Reallocated simulated resources using contribution evidence. No real payment or live wallet action occurred.</p></article>
+<article class="card"><div class="label">Purpose</div><h3>Externally held</h3><p>The system does not become the source of its own ultimate purpose or consequential permissions.</p></article>
+<article class="card"><div class="label">Initiative</div><h3>Increasingly autonomous</h3><p>Intermediate goal formation and work organization may become more autonomous inside the admitted envelope.</p></article>
+<article class="card"><div class="label">Authority</div><h3>Not self-generated</h3><p>Successful reasoning or performance does not create new consequential permission.</p></article>
 </div>
-<div class="metrics">
-<div class="metric"><b>41 / 41</b><span>Manifested artifacts matched</span></div>
-<div class="metric"><b>0</b><span>Founder semantic rescue</span></div>
-<div class="metric"><b>0</b><span>Authority delta</span></div>
-<div class="metric"><b>0</b><span>Consequential external effects</span></div>
-</div>
-<p class="section-intro">One authorized repair corrected a receipt-binding defect before the successful runtime-continuity retry. The failed pre-repair result remains part of the research record.</p>
 </div></section>
 
 <section class="section" id="evidence"><div class="wrap">
-<div class="section-head"><div class="kicker">06 / Evidence state</div><div>
-<h2>What is actually supported today.</h2>
-<p class="section-intro">A specification is not an implementation. An implementation is not a validation. Local validation is not independent reproduction.</p>
+<div class="section-head"><div class="kicker">04 / Public evidence state</div><div>
+<h2>What this site supports today.</h2>
+<p class="section-intro">Public claims are deliberately separated from private development state.</p>
 </div></div>
-<div class="table-wrap"><table><thead><tr><th>Capability</th><th>State</th><th>What that means</th></tr></thead><tbody>
-<tr><td>Governance &amp; authority binding</td><td class="state pass">Built · validated locally</td><td>Purpose, scope, resource limits, and action authority are evaluated separately from model confidence or performance.</td></tr>
-<tr><td>Receipt/evidence layer</td><td class="state pass">Built · public reference exists</td><td>Recorded governed execution can be inspected independently from the running process.</td></tr>
-<tr><td>Retained capability reuse</td><td class="state pass">Built · validated locally</td><td>Retained capabilities can be reused selectively rather than forcing redundant modification.</td></tr>
-<tr><td>Endogenous intermediate-goal formation</td><td class="state pass">Built · validated locally</td><td>The CE generated and prioritized intermediate goals from Founder purpose plus observed state, with reuse, new work, and abstention available.</td></tr>
-<tr><td>Autonomic runtime continuity &amp; recovery</td><td class="state pass">Built · validated locally</td><td>Bounded goal/work state persisted across restart and reprioritized after environmental change.</td></tr>
-<tr><td>Multi-unit machine organization</td><td class="state pass">Built · validated locally</td><td>Multiple bounded operating units were assigned work and tracked for resource use and contribution.</td></tr>
-<tr><td>Economic continuity</td><td class="state open">Shadow only · validated locally</td><td>Evidence-driven simulated resource allocation passed locally. Real payments and capital control were not exercised.</td></tr>
-<tr><td>Long-horizon reliability</td><td class="state hold">Not established</td><td>The public milestone does not establish generalized duration or reliability.</td></tr>
-<tr><td>Live consequential external actuation</td><td class="state hold">Withheld</td><td>No production send, deploy, merge, customer action, or real payment is implied by this public milestone.</td></tr>
-</tbody></table></div></div></section>
+<div class="table-wrap"><table>
+<thead><tr><th>Public object</th><th>State</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td>NIST-MA12-001 bounded proof</td><td class="state pass">Released · frozen</td><td>The selected constraint denied the recorded forbidden action in the bounded harness; the release provides an offline verifier.</td></tr>
+<tr><td>Cognitive Exoskeleton v0.3.0 milestone</td><td class="state pass">Local evidence</td><td>A bounded local organizational milestone exists; this site does not promote it to production readiness.</td></tr>
+<tr><td>Live consequential actuation</td><td class="state hold">Withheld</td><td>No production deployment, customer communication, or real-value actuation is authorized or claimed by this page.</td></tr>
+</tbody>
+</table></div>
+</div></section>
 
 <section class="section"><div class="wrap">
-<div class="section-head"><div class="kicker">07 / Selective autonomy</div><div>
-<h2>The target is not “always act” or “always improve.”</h2>
-<p class="section-intro">The system can distinguish between a novel need, a known need, and no warranted need.</p>
+<div class="section-head"><div class="kicker">05 / Non-claims</div><div>
+<h2>What the public surface does not establish.</h2>
+<p class="section-intro">The claim ceiling stays narrower than the private architecture ambition.</p>
 </div></div>
-<div class="triad">
-<article class="triad-item"><div class="label">Novel need</div><div class="big">Create bounded new work</div><p>Development is warranted only when existing capability does not already satisfy the need.</p></article>
-<article class="triad-item"><div class="label">Known need</div><div class="big">Reuse retained capability</div><p>A repeated need does not force redundant self-modification.</p></article>
-<article class="triad-item"><div class="label">No warranted need</div><div class="big">Abstain</div><p>Lawful non-action is a first-class outcome.</p></article>
-</div></div></section>
-
-<section class="section"><div class="wrap">
-<div class="section-head"><div class="kicker">08 / Non-claims</div><div>
-<h2>What the public evidence does not establish.</h2>
-<p class="section-intro">The public claim is intentionally narrower than the architecture ambition.</p></div></div>
 <ul class="nonclaims">
 <li>The public proof is not a deployment certificate and does not establish universal agent safety.</li>
-<li>ANANS is not a production-ready autonomous company.</li>
-<li>The Cognitive Exoskeleton has not been independently or externally validated.</li>
-<li>Generalized long-horizon reliability, unattended production operation, and Founder-attention reduction are not established by the public milestone.</li>
-<li>No real capital control, real payment, customer communication, production deployment, or other consequential external action is claimed by this page.</li>
-<li>The system cannot redefine its ultimate purpose or enlarge its own consequential authority.</li>
-<li>Repeated same-machinery acquisition of distinct new capabilities remains unproven.</li>
-<li>This is not a claim of general AGI or general autonomous recursive self-improvement.</li>
-</ul></div></section>
+<li>The released proof does not establish OS-level containment or coverage of every execution path.</li>
+<li>ANANS is not represented here as a production-ready autonomous company or general AGI.</li>
+<li>No real capital control, real payment, customer communication, or production deployment is claimed here.</li>
+<li>Reference to NIST identifies a mapping source; it does not imply NIST validation, acceptance, or endorsement.</li>
+<li>The public site is not a specification for reconstructing unreleased ANANS implementation or proof-development machinery.</li>
+</ul>
+</div></section>
 
-<section class="section" id="next"><div class="wrap">
-<div class="section-head"><div class="kicker">09 / Next frontier</div><div>
-<h2>Pressure the boundary harder before making the system more elaborate.</h2>
-<p class="section-intro">The public direction is evidence-bearing pressure: harder environments, clearer reviewer artifacts, and narrower claims that survive attempts to break them.</p>
+<section class="section" id="contact"><div class="wrap">
+<div class="section-head"><div class="kicker">06 / Contact</div><div>
+<h2>For reviewers, researchers, and teams working on consequential AI systems.</h2>
+<p class="section-intro">Publicly, ANANS exposes bounded evidence and claim boundaries. Private development details remain private unless a later release requires disclosure for verification.</p>
+<p><a href="mailto:hello@anansai.org">hello@anansai.org</a></p>
 </div></div>
-<div class="next-grid">
-<article class="next-item"><b>Authority-bound agent assays</b><p>Test consequential agent workflows against explicit permitted and prohibited actions without turning a bounded result into a blanket safety claim.</p></article>
-<article class="next-item"><b>Adverse-environment recovery</b><p>Inject failures and environmental changes, then measure recovery quality, stale work, duplication, and authority integrity.</p></article>
-<article class="next-item"><b>Founder-attention measurement</b><p>Measure interventions and semantic corrections rather than inferring reduced Founder burden from one bounded sprint.</p></article>
-<article class="next-item"><b>Independent review</b><p>Prepare reviewer-safe evidence and invite attempts to falsify or break the public claims.</p></article>
-</div></div></section>
-
-<section class="section"><div class="wrap">
-<div class="section-head"><div class="kicker">10 / Contact</div><div>
-<h2>For reviewers, researchers, and teams approaching consequential agent deployment.</h2>
-<p class="section-intro">ANANS remains privately developed. Publicly, the useful material is the evidence state, the authority question, the failures, and the bounded claims that survived pressure.</p>
-<p><a href="mailto:hello@anansai.org">hello@anansai.org</a></p></div></div>
 </div></section>
 </main>
+
 <footer class="footer"><div class="wrap footer-grid">
-<div><div class="mark">ANANS</div><p>Governed machine autonomy under fixed human purpose and consequential authority.</p></div>
-<div><h3>Inspect</h3><p><a href="https://github.com/Anans-AI/anans-containment-proofs">Containment proofs</a><br><a href="governance.html">Governance</a><br><a href="index.html#milestone">Cognitive Exoskeleton</a></p></div>
-<div><h3>Version</h3><p><code>v0.3.0 · local autonomic organization</code></p></div>
+<div><div class="mark">ANANS</div><p>Governed machine autonomy under externally held purpose and consequential authority.</p></div>
+<div><h3>Inspect</h3><p><a href="https://github.com/Anans-AI/anans-containment-proofs">Containment proofs</a><br><a href="governance.html">Governance</a></p></div>
 <div><h3>Built in</h3><p>Trinidad &amp; Tobago<br>© 2026 ANANS</p></div>
 </div></footer>
-</body></html>
+</body>
+</html>
