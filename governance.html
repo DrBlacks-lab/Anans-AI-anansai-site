@@ -3,246 +3,131 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'none'; img-src 'self' data:; font-src 'none'; connect-src 'none'; media-src 'none'; style-src 'sha256-ygWFIR578GtF1BEOAtNzVyN0mNEK/riP0hMKSngh0r8='; script-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'none'; img-src 'self' data:; font-src 'none'; connect-src 'none'; media-src 'none'; style-src 'self'; script-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
 <title>ANANS Governance — decide before, bound during, prove after</title>
-<meta name="description" content="The governance substrate beneath ANANS: authority is established before execution, consequential effects remain bounded, and decisions leave reviewable evidence.">
+<meta name="description" content="Public governance principles for ANANS: authority precedes execution, effects remain bounded, and released claims leave reviewable evidence.">
 <meta property="og:title" content="ANANS Governance">
-<meta property="og:description" content="Decide before. Bound during. Prove after. Governance for machine autonomy without self-authorization.">
+<meta property="og:description" content="Decide before. Bound during. Prove after.">
 <meta property="og:type" content="website">
-<style>
-:root{
-  --paper:#f1f0ea;--paper2:#e7e6df;--ink:#111713;--muted:#55605a;--rule:#c7c7be;
-  --deep:#0e1511;--deep2:#162019;--green:#2f684b;--amber:#8e6b20;--red:#9a4434;
-  --sans:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  --serif:Georgia,Cambria,"Times New Roman",serif;
-  --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
-  --gutter:clamp(1rem,4vw,3rem);--measure:68ch
-}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--paper);color:var(--ink);font:400 clamp(.98rem,.84rem + .32vw,1.08rem)/1.64 var(--serif)}
-a{color:inherit;text-decoration-thickness:1px;text-underline-offset:.2em}
-a:hover{color:var(--green)}
-.wrap{width:min(1180px,calc(100% - 2*var(--gutter)));margin-inline:auto}
-.mast{border-top:4px solid var(--ink);padding:.82rem 0;border-bottom:1px solid var(--rule);background:rgba(241,240,234,.96)}
-.mast-row{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
-.wordmark{font:800 .96rem/1 var(--sans);letter-spacing:.21em}
-.meta,.nav,.kicker,.label,.status,.eyebrow,.version,.mini{font-family:var(--mono);text-transform:uppercase;letter-spacing:.11em}
-.meta{font-size:.61rem;color:var(--muted)}
-.nav{display:flex;gap:1rem;flex-wrap:wrap;font-size:.62rem}
-.nav a{text-decoration:none;border-bottom:1px solid transparent}.nav a:hover,.nav a[aria-current="page"]{border-color:currentColor}
-.hero{position:relative;overflow:hidden;padding:clamp(4.6rem,10vw,8.2rem) 0 clamp(3rem,7vw,5.8rem);border-bottom:1px solid var(--rule)}
-.hero:after{content:"";position:absolute;inset:0;pointer-events:none;background:
- linear-gradient(90deg,transparent 0 49.9%,rgba(17,23,19,.035) 50% 50.1%,transparent 50.2%),
- linear-gradient(rgba(17,23,19,.025) 1px,transparent 1px);background-size:100% 100%,100% 54px;
- mask-image:linear-gradient(to bottom,black,transparent 88%)}
-.hero-grid{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1.55fr) minmax(260px,.72fr);gap:clamp(2rem,6vw,5rem);align-items:end}
-.eyebrow{font-size:.65rem;color:var(--green);font-weight:700;margin:0 0 1rem}
-h1{font:800 clamp(2.8rem,1.4rem + 5.7vw,6rem)/.92 var(--sans);letter-spacing:-.052em;max-width:12ch;margin:0;text-wrap:balance}
-h1 em{display:block;font-family:var(--serif);font-weight:400;font-style:italic;color:var(--muted);letter-spacing:-.035em}
-.lede{max-width:var(--measure);font-size:1.12em;margin:1.7rem 0 0}
-.hero-aside{border-top:2px solid var(--ink);padding-top:1rem}
-.version{display:inline-block;border:1px solid var(--green);color:var(--green);font-size:.6rem;padding:.45rem .55rem;margin-bottom:.9rem}
-.hero-aside p{margin:.55rem 0 0;color:var(--muted);font-size:.93em}
-.actions{display:flex;gap:.8rem;flex-wrap:wrap;margin-top:1.5rem;font:600 .67rem/1.4 var(--mono);letter-spacing:.04em}
-.actions a{padding:.7rem .85rem;border:1px solid var(--ink);text-decoration:none}.actions .primary{background:var(--ink);color:var(--paper)}
-.actions a:hover{background:var(--green);border-color:var(--green);color:#fff}
-.band{background:var(--deep);color:#dce3df;padding:clamp(3rem,6vw,5rem) 0}
-.band-grid{display:grid;grid-template-columns:1fr 2fr;gap:clamp(2rem,6vw,6rem);align-items:start}
-.band .kicker{font-size:.62rem;color:#91a198}
-.band blockquote{margin:0;font:500 clamp(1.8rem,1.2rem + 2.2vw,3.35rem)/1.08 var(--sans);letter-spacing:-.025em;color:#f5f7f5;max-width:22ch}
-.band blockquote span{display:block;margin-top:1rem;font:400 italic .56em/1.4 var(--serif);color:#acb9b2;letter-spacing:-.01em}
-.section{padding:clamp(3.5rem,7vw,6rem) 0;border-bottom:1px solid var(--rule)}
-.section-head{display:grid;grid-template-columns:13rem 1fr;gap:2rem;margin-bottom:2.2rem}
-.kicker{font-size:.62rem;color:var(--muted)}
-.section h2{font:760 clamp(1.8rem,1.3rem + 1.7vw,3rem)/1.04 var(--sans);letter-spacing:-.035em;margin:0;max-width:21ch}
-.section-intro{max-width:var(--measure);font-size:1.05em;margin:.9rem 0 0;color:#2f3934}
-.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule)}
-.card{background:var(--paper);padding:1.4rem;min-height:10rem}
-.card .label{font-size:.58rem;color:var(--muted)}.card h3{font:700 1.04rem/1.18 var(--sans);margin:.6rem 0 .55rem;letter-spacing:-.015em}.card p{margin:0;color:#3d4742;font-size:.94em}
-.status{display:inline-block;margin-top:1rem;font-size:.55rem;font-weight:700}.pass{color:var(--green)}.open{color:var(--amber)}.hold{color:var(--red)}
-.diagram{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(290px,.8fr);gap:clamp(2rem,5vw,4rem)}
-pre,.mono{margin:0;background:var(--deep2);color:#dce5df;padding:1.35rem;border:1px solid #2a3930;overflow:auto;font:500 .73rem/1.75 var(--mono);white-space:pre-wrap}
-.stack{display:grid;gap:1rem}.stack-item{padding:1rem 0;border-top:1px solid var(--rule)}.stack-item:first-child{border-top:2px solid var(--ink)}
-.stack-item h3{font:700 .93rem/1.2 var(--sans);margin:0 0 .35rem}.stack-item p{margin:0;color:var(--muted);font-size:.92em}
-.timeline{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border-top:2px solid var(--ink)}
-.step{padding:1.1rem 1rem 1.3rem 0;border-right:1px solid var(--rule)}.step:last-child{border-right:0}
-.step .n{font:700 .59rem/1 var(--mono);color:var(--green);letter-spacing:.12em}.step h3{font:700 .95rem/1.15 var(--sans);margin:.55rem 0}.step p{font-size:.88em;color:var(--muted);margin:0}
-.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);margin-top:1.5rem}
-.metric{background:var(--paper2);padding:1rem}.metric b{display:block;font:760 1.42rem/1 var(--sans);letter-spacing:-.03em}.metric span{display:block;margin-top:.35rem;font:.57rem/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.table-wrap{overflow:auto;border-top:2px solid var(--ink)}table{width:100%;border-collapse:collapse;min-width:760px;font-size:.91em}
-th{text-align:left;font:700 .58rem/1.3 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:.7rem .8rem .7rem 0;border-bottom:1px solid var(--rule)}
-td{vertical-align:top;padding:.8rem .8rem .8rem 0;border-bottom:1px solid var(--rule)}td.state{font:700 .57rem/1.4 var(--mono);letter-spacing:.07em;text-transform:uppercase;white-space:nowrap}
-.triad{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}.triad-item{padding:1.3rem;border:1px solid var(--rule);background:var(--paper2)}
-.triad-item .big{font:800 clamp(1.25rem,1rem + .8vw,1.8rem)/1.05 var(--sans);margin:.4rem 0 .7rem}.triad-item p{margin:0;color:var(--muted);font-size:.93em}
-.nonclaims,.safe-list{display:grid;grid-template-columns:1fr 1fr;gap:1rem 3rem;margin:0;padding:0;list-style:none}
-.nonclaims li,.safe-list li{position:relative;padding:.9rem 0 .9rem 1.5rem;border-top:1px solid var(--rule)}
-.nonclaims li:before{content:"—";position:absolute;left:0;color:var(--red);font-family:var(--mono)}
-.safe-list li:before{content:"✓";position:absolute;left:0;color:var(--green);font-family:var(--mono)}
-.callout{padding:1.35rem;border:1px solid var(--rule);background:var(--paper2);max-width:var(--measure)}
-.callout .label{font-size:.58rem;color:var(--muted)}.callout p{margin:.55rem 0 0}
-.next-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule)}
-.next-item{background:var(--paper);padding:1.2rem}.next-item b{font:700 .92rem/1.2 var(--sans)}.next-item p{margin:.55rem 0 0;color:var(--muted);font-size:.9em}
-.footer{padding:2.6rem 0 4rem;background:var(--deep);color:#aebbb4}.footer-grid{display:grid;grid-template-columns:1.3fr repeat(3,1fr);gap:2rem}
-.footer h3{font:700 .62rem/1.4 var(--mono);letter-spacing:.11em;text-transform:uppercase;color:#eef3f0;margin:0 0 .6rem}.footer p,.footer a{font-size:.82rem}.footer a{color:#cbd6d0}.footer .mark{font:800 1rem/1 var(--sans);letter-spacing:.2em;color:white}
-@media(max-width:900px){
-  .hero-grid,.band-grid,.section-head,.diagram{grid-template-columns:1fr}
-  .cards{grid-template-columns:1fr 1fr}.timeline{grid-template-columns:1fr 1fr}.metrics{grid-template-columns:1fr 1fr}.next-grid{grid-template-columns:1fr 1fr}.footer-grid{grid-template-columns:1fr 1fr}
-  .section-head{gap:.6rem}
-}
-@media(max-width:620px){
-  .meta{display:none}.nav{width:100%;justify-content:space-between}.hero{padding-top:3.5rem}
-  h1{font-size:clamp(2.6rem,14vw,4.2rem)}.cards,.triad,.nonclaims,.safe-list,.timeline,.metrics,.next-grid,.footer-grid{grid-template-columns:1fr}
-  .step{border-right:0;border-bottom:1px solid var(--rule)}.section{padding:3rem 0}.actions a{width:100%;text-align:center}
-}
-</style>
+<link rel="stylesheet" href="site.css">
 </head>
 <body>
 <header class="mast"><div class="wrap mast-row">
-<div class="wordmark">ANANS</div><div class="meta">Governance substrate · Trinidad &amp; Tobago</div><nav class="nav" aria-label="Primary">
-<a href="index.html">Cognitive Exoskeleton</a>
-<a aria-current="page" href="governance.html">Governance</a>
-<a href="#principles">Principles</a>
-<a href="#state">Evidence state</a>
-<a href="#boundary">Public boundary</a>
+<div class="wordmark">ANANS</div>
+<div class="meta">Governance · public principles</div>
+<nav class="nav" aria-label="Primary">
+<a href="index.html">Home</a>
+<a aria-current="page" href="#principles">Governance</a>
+<a href="https://github.com/Anans-AI/anans-containment-proofs">Public proof</a>
+<a href="#boundary">Disclosure boundary</a>
+<a href="#contact">Contact</a>
 </nav>
 </div></header>
+
 <main>
 <section class="hero"><div class="wrap hero-grid">
 <div>
-<p class="eyebrow">Governance substrate</p>
+<p class="eyebrow">Governance · public overview</p>
 <h1>Decide before.<em>Bound during. Prove after.</em></h1>
-<p class="lede">ANANS separates what a machine can do from what it is permitted to do. Authority is established before execution, consequential effects remain bounded during execution, and decisions — including refusals — leave evidence that can be reviewed afterwards.</p>
-<div class="actions"><a class="primary" href="#principles">Read the principles</a><a href="index.html">See the Cognitive Exoskeleton</a></div>
+<p class="lede">ANANS separates capability from consequential permission. Authority comes from outside the worker seeking to act; ambiguous or missing authority does not become permission; released claims leave evidence that can be inspected afterwards.</p>
+<div class="actions">
+<a class="primary" href="#principles">Read the principles</a>
+<a href="https://github.com/Anans-AI/anans-containment-proofs">Inspect the released proof</a>
+</div>
 </div>
 <aside class="hero-aside">
-<span class="version">Governance · public overview</span>
-<p><strong>The governance layer is the substrate beneath autonomous organization.</strong></p>
-<p>The public page intentionally describes the constitutional and evidence properties without publishing private runtime internals.</p>
+<span class="version">Public principles only</span>
+<p><strong>This page describes constitutional properties, not private implementation topology.</strong></p>
+<p>Unreleased development mechanics and proof strategy are intentionally excluded.</p>
 </aside>
 </div></section>
 
 <section class="band"><div class="wrap band-grid">
-<div class="kicker">01 / Constitutional law</div>
-<blockquote>Capability can increase without authority increasing.
-<span>Epistemic expansion is not authority expansion.</span></blockquote>
+<div class="kicker">01 / Core rule</div>
+<blockquote>Ability is not permission. Success is not authority.</blockquote>
 </div></section>
 
 <section class="section" id="principles"><div class="wrap">
 <div class="section-head"><div class="kicker">02 / Principles</div><div>
-<h2>Govern the decision boundary, not the model’s confidence.</h2>
-<p class="section-intro">The governance problem begins before execution. A strong model, a unanimous ensemble, or a successful prior run does not manufacture permission.</p>
+<h2>Govern the authority boundary, not the model’s confidence.</h2>
+<p class="section-intro">A stronger model, a successful prior run, or a compelling rationale cannot manufacture consequential permission.</p>
 </div></div>
 <div class="cards">
-<article class="card"><div class="label">Before</div><h3>Authority already exists</h3><p>Purpose, scope, resource ceilings, and consequential permissions come from Founder or policy authority rather than from the worker seeking to act.</p><div class="status pass">Core principle</div></article>
-<article class="card"><div class="label">During</div><h3>Effects remain bounded</h3><p>The execution boundary admits only work inside the delegated envelope. Ambiguity or missing authority fails closed rather than being interpreted optimistically.</p><div class="status pass">Locally validated</div></article>
-<article class="card"><div class="label">After</div><h3>Evidence survives the run</h3><p>Governed decisions and refusals produce reviewable receipts so a later reviewer can distinguish what was requested, allowed, attempted, and withheld.</p><div class="status pass">Public reference exists</div></article>
-</div></div></section>
+<article class="card"><div class="label">Before</div><h3>Authority precedes action</h3><p>Consequential permission must already exist outside the worker seeking to act.</p><div class="status pass">Constitutional rule</div></article>
+<article class="card"><div class="label">During</div><h3>Ambiguity fails closed</h3><p>Missing, expired, or out-of-scope authority produces refusal rather than silent widening.</p><div class="status pass">Bounded principle</div></article>
+<article class="card"><div class="label">After</div><h3>Evidence survives the decision</h3><p>Released governance claims include reviewable evidence sufficient to inspect the admitted claim.</p><div class="status pass">Public proof exists</div></article>
+</div>
+</div></section>
 
 <section class="section"><div class="wrap">
-<div class="section-head"><div class="kicker">03 / Authority flow</div><div>
-<h2>The worker is downstream of purpose and permission.</h2>
-<p class="section-intro">The public model is deliberately simple. It exposes the constitutional relation, not the private implementation topology.</p>
+<div class="section-head"><div class="kicker">03 / Public relation</div><div>
+<h2>The worker remains downstream of purpose and permission.</h2>
+<p class="section-intro">The public model is deliberately minimal.</p>
 </div></div>
-<div class="diagram">
-<pre>FOUNDER / POLICY AUTHORITY
-  purpose + delegated envelope
-          │
-          ▼
-GOVERNANCE DECISION
-  identity
-  scope
-  resource limits
-  allowed effect class
-          │
-       ALLOW / REFUSE
-          │
-          ▼
-BOUNDED WORKER
-          │
-          ▼
-EFFECT + EVIDENCE
-          │
-          ▼
-REVIEW
+<div class="proofbox"><pre>EXTERNAL PURPOSE + CONSEQUENTIAL AUTHORITY
+                ↓
+        GOVERNANCE DECISION
+                ↓
+         BOUNDED ACTION
+            OR REFUSAL
+                ↓
+        REVIEWABLE EVIDENCE
 
-ABILITY != PERMISSION
-SUCCESS != AUTHORITY
-REFUSAL IS AN EVIDENCE-BEARING OUTCOME</pre>
-<div class="stack">
-<div class="stack-item"><h3>Purpose is external</h3><p>The system can reason about how to pursue a purpose, but it does not become the source of that purpose.</p></div>
-<div class="stack-item"><h3>Permission is explicit</h3><p>Consequential action depends on a delegated envelope rather than on inferred intent or model confidence.</p></div>
-<div class="stack-item"><h3>Refusal is first-class</h3><p>Missing, ambiguous, expired, or out-of-scope authority produces a bounded refusal rather than silent continuation.</p></div>
-<div class="stack-item"><h3>Evidence is separate from persuasion</h3><p>Receipts are intended to support later inspection, including adverse evidence and withheld promotion.</p></div>
-</div></div></div></section>
+CAPABILITY != AUTHORITY
+REFUSAL IS A VALID OUTCOME</pre></div>
+</div></section>
 
 <section class="section"><div class="wrap">
-<div class="section-head"><div class="kicker">04 / Recorded states</div><div>
-<h2>A useful governance record distinguishes states that demos often collapse.</h2>
-<p class="section-intro">ANANS treats requested work, authority, execution, evidence, and promotion as different questions. A local PASS is not a production admission.</p>
+<div class="section-head"><div class="kicker">04 / Released evidence</div><div>
+<h2>Public verification is release-specific.</h2>
+<p class="section-intro">The current containment-proof repository publishes a bounded released claim and the evidence required to inspect it. A released proof does not turn the public repository into a specification for unreleased ANANS machinery.</p>
 </div></div>
-<div class="triad">
-<article class="triad-item"><div class="label">Lawful completion</div><div class="big">Allowed work completes</div><p>The requested effect stayed inside its declared envelope and left a reviewable record.</p></article>
-<article class="triad-item"><div class="label">Fail-closed refusal</div><div class="big">No authority, no effect</div><p>An unresolved or missing prerequisite produces a refusal without silently widening the worker’s permissions.</p></article>
-<article class="triad-item"><div class="label">Withheld promotion</div><div class="big">Local evidence stays local</div><p>A component can pass locally while live consequential use, production promotion, or external validation remain withheld.</p></article>
-</div></div></section>
-
-<section class="section" id="state"><div class="wrap">
-<div class="section-head"><div class="kicker">05 / Evidence state</div><div>
-<h2>What the public governance claim supports.</h2>
-<p class="section-intro">This page intentionally avoids implementation-specific execution graphs, internal file identities, private policy schemas, and unpublished runtime topology.</p>
-</div></div>
-<div class="table-wrap"><table><thead><tr><th>Governance capability</th><th>State</th><th>Public meaning</th></tr></thead><tbody>
-<tr><td>Authority binding &amp; admission</td><td class="state pass">Built · validated locally</td><td>Purpose, delegated scope, and consequential permissions are treated separately from model capability.</td></tr>
-<tr><td>Bounded execution reference</td><td class="state pass">Built · local reference</td><td>A governed reference execution and refusal path have been exercised locally.</td></tr>
-<tr><td>Receipt/evidence layer</td><td class="state pass">Built · public reference exists</td><td>A recorded governance proof is publicly inspectable without publishing the private production implementation.</td></tr>
-<tr><td>Autonomous organizational use</td><td class="state pass">Local CE integration</td><td>The Cognitive Exoskeleton used the governance boundary during bounded local organizational runs.</td></tr>
-<tr><td>Live consequential actuation</td><td class="state hold">Withheld</td><td>No public claim is made that customer repositories, external communications, deployments, or real payments are currently actuated through this page’s demonstrated path.</td></tr>
-<tr><td>Independent external validation</td><td class="state hold">Not performed</td><td>No independent third party has yet audited or reproduced the integrated governance claim.</td></tr>
-</tbody></table></div></div></section>
+<div class="cards">
+<article class="card"><div class="label">Claim</div><h3>Narrow and versioned</h3><p>The current release is tied to a specific bounded claim and version.</p></article>
+<article class="card"><div class="label">Verifier</div><h3>Minimum necessary surface</h3><p>The verifier exists to reproduce the released claim, not to disclose future proof-development strategy.</p></article>
+<article class="card"><div class="label">Non-claims</div><h3>Bound the interpretation</h3><p>The release explicitly excludes broader conclusions not supported by its evidence.</p></article>
+</div>
+<div class="actions"><a class="primary" href="https://github.com/Anans-AI/anans-containment-proofs">Open containment proofs</a></div>
+</div></section>
 
 <section class="section" id="boundary"><div class="wrap">
-<div class="section-head"><div class="kicker">06 / Public boundary</div><div>
-<h2>What is intentionally not published here.</h2>
-<p class="section-intro">The site should reveal enough to make the claims falsifiable without publishing the private machinery required to reproduce or attack the implementation.</p>
+<div class="section-head"><div class="kicker">05 / Disclosure boundary</div><div>
+<h2>Public evidence is not public development.</h2>
+<p class="section-intro">ANANS publishes what is necessary to inspect an admitted public claim. Unreleased implementation details, internal test strategy, development artifacts, credentials, and non-public project material remain private by default.</p>
 </div></div>
-<ul class="safe-list">
-<li>High-level constitutional rules and claim boundaries are public.</li>
-<li>Evidence states, adverse results, and withheld claims are public.</li>
-<li>The existence of admission, bounded execution, and receipts is public.</li>
-<li>Exact runtime topology, private policy schemas, internal work-object formats, pressure banks, local paths, unpublished receipts, and operational credentials remain private.</li>
-<li>Implementation-specific exploit surfaces and bypass-sensitive details are not part of the marketing site.</li>
-<li>Public research artifacts are curated separately from the private development corpus.</li>
+<ul class="nonclaims">
+<li>Public proof repositories are evidence membranes, not development workspaces.</li>
+<li>A future proof is not described publicly before its evidence and disclosure gate are earned.</li>
+<li>Public release material should minimize unnecessary reconstruction or substitution of unreleased implementation.</li>
+<li>Nothing on this page grants execution, deployment, spending, or publication authority.</li>
 </ul>
-<div class="callout"><div class="label">Public proof</div>
-<p>A public containment-proof repository exists for a bounded recorded governance run. It is evidence for that recorded run, not a claim that the private production implementation or every execution path has been independently verified.</p>
-<p><a href="https://github.com/Anans-AI/anans-containment-proofs">Open the public containment-proof repository →</a></p>
-</div></div></section>
+</div></section>
 
 <section class="section"><div class="wrap">
-<div class="section-head"><div class="kicker">07 / Non-claims</div><div>
+<div class="section-head"><div class="kicker">06 / Non-claims</div><div>
 <h2>Governance evidence is not production certification.</h2>
-<p class="section-intro">The public claim stays bounded to what has actually been demonstrated.</p></div></div>
+<p class="section-intro">The public claim remains bounded to the released evidence.</p>
+</div></div>
 <ul class="nonclaims">
 <li>ANANS is not represented here as production-ready.</li>
-<li>No independent party has audited the full architecture, private source, or integrated CE result.</li>
-<li>A public reference proof does not establish non-bypassability of every private execution path.</li>
-<li>Local validation does not establish unattended long-horizon reliability.</li>
-<li>The governance layer does not authorize itself, expand Founder purpose, or grant workers new consequential permissions.</li>
-<li>The public site is not a specification for reconstructing the private ANANS implementation.</li>
-</ul></div></section>
+<li>The public proof does not establish non-bypassability of every private execution path.</li>
+<li>Local validation does not establish unattended production reliability.</li>
+<li>The governance layer does not authorize itself or grant workers new consequential permissions.</li>
+</ul>
+</div></section>
 
-<section class="section"><div class="wrap">
-<div class="section-head"><div class="kicker">08 / Relation to CE</div><div>
-<h2>Governance is what lets organizational autonomy increase without becoming sovereignty.</h2>
-<p class="section-intro">The Cognitive Exoskeleton is the autonomous organization. ANANS governance is the substrate that keeps purpose and consequential authority outside that organization.</p>
-<div class="actions"><a class="primary" href="index.html">Return to the Cognitive Exoskeleton</a><a href="mailto:hello@anansai.org">Contact</a></div>
-</div></div></div></section>
+<section class="section" id="contact"><div class="wrap">
+<div class="section-head"><div class="kicker">07 / Contact</div><div>
+<h2>Questions about public evidence or governance claims.</h2>
+<p><a href="mailto:hello@anansai.org">hello@anansai.org</a></p>
+</div></div>
+</div></section>
 </main>
+
 <footer class="footer"><div class="wrap footer-grid">
 <div><div class="mark">ANANS</div><p>Decide before. Bound during. Prove after.</p></div>
-<div><h3>Pages</h3><p><a href="index.html">Cognitive Exoskeleton</a><br><a href="governance.html">Governance</a></p></div>
-<div><h3>Public evidence</h3><p><a href="https://github.com/Anans-AI/anans-containment-proofs">Containment proofs</a></p></div>
+<div><h3>Pages</h3><p><a href="index.html">Home</a><br><a href="https://github.com/Anans-AI/anans-containment-proofs">Containment proofs</a></p></div>
 <div><h3>Built in</h3><p>Trinidad &amp; Tobago<br>© 2026 ANANS</p></div>
 </div></footer>
-</body></html>
+</body>
+</html>
