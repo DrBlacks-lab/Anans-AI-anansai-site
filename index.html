@@ -5,149 +5,278 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'none'; img-src 'self' data:; font-src 'none'; connect-src 'none'; media-src 'none'; style-src 'self'; script-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
 <title>ANANS — test the boundary before trust</title>
-<meta name="description" content="ANANS develops governed machine autonomy. Inspect bounded public evidence or request a private Agent Admissibility Review for consequential AI workflows.">
+<meta name="description" content="ANANS develops governed machine autonomy: bounded public evidence, private agent admissibility review, and a machine organization of human-facing and agent-to-agent service centers.">
 <meta property="og:title" content="ANANS — test the boundary before trust">
-<meta property="og:description" content="Bounded public evidence, explicit claim limits, and a private admissibility review for consequential AI agents.">
+<meta property="og:description" content="Inspect the public proof, try a bounded claim check, or review the authority boundary of a consequential AI system.">
 <meta property="og:type" content="website">
-<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="landing.css">
 </head>
-<body>
-<header class="mast"><div class="wrap mast-row">
-<div class="wordmark">ANANS</div>
-<div class="meta">Governed machine autonomy · Trinidad &amp; Tobago</div>
-<nav class="nav" aria-label="Primary">
-<a aria-current="page" href="#proof">Public proof</a>
-<a href="claim-check.html">Claim Check</a>
-<a href="agent-admissibility-review.html">Private Review</a>
-<a href="governance.html">Governance</a>
-<a href="#ce">Cognitive Exoskeleton</a>
-<a href="#contact">Contact</a>
-</nav>
-</div></header>
+<body class="landing">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="mast">
+  <div class="wrap mast-row">
+    <a class="brand" href="index.html" aria-label="ANANS home">
+      <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 17c-7 0-12 6-12 13 0 9 6 18 12 18s12-9 12-18c0-7-5-13-12-13Zm0-9 4 7h-8l4-7Zm-13 13L8 14m11 16L5 27m14 12L7 47m38-26 11-7M45 30l14-3M45 39l12 8M25 19l-7-9m21 9 7-9"/></svg>
+      <span>ANANS</span>
+    </a>
+    <nav class="nav" aria-label="Primary">
+      <a href="https://github.com/Anans-AI/anans-containment-proofs">Public proof</a>
+      <a href="claim-check.html">Claim Check</a>
+      <a href="agent-admissibility-review.html">Private Review</a>
+      <a href="governance.html">Governance</a>
+      <a href="bounded-machine-organization.html">Machine Org</a>
+      <a href="#ade-ce">ADE / CE</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <a class="button button-small button-primary" href="agent-admissibility-review.html">Request review</a>
+  </div>
+</header>
 
-<main>
-<section class="hero"><div class="wrap hero-grid">
-<div>
-<p class="eyebrow">Public evidence + private review</p>
-<h1>Can this agent do something it must not?<em>Test the boundary before trust.</em></h1>
-<p class="lede">ANANS develops governed machine autonomy. Publicly, it exposes admitted bounded claims and the evidence needed to inspect them. For teams preparing consequential AI agents for production, ANANS also offers a private admissibility review focused on the exact actions, authority boundaries, controls, and evidence that must hold before deployment.</p>
-<div class="actions">
-<a class="primary" href="agent-admissibility-review.html">Request a private review</a>
-<a href="https://github.com/Anans-AI/anans-containment-proofs">Verify the public proof</a>
-<a href="claim-check.html">Try the Public Claim Check</a>
-</div>
-</div>
-<aside class="hero-aside">
-<span class="version">NIST-MA12-001 · frozen public proof</span>
-<p><strong>The selected constraint denied the recorded forbidden action in the bounded harness.</strong></p>
-<p>The released bundle includes an offline verifier with expected terminal <code>VERIFY PASS</code>.</p>
-<p>Bounded evidence only. Not NIST endorsement. Not universal containment. Not production readiness.</p>
-</aside>
-</div></section>
+<main id="main">
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow">Governed machine autonomy</p>
+      <h1>Can this agent do something it <em>must not?</em></h1>
+      <p class="hero-line">Test the boundary before trust.</p>
+      <p class="lede">ANANS helps teams inspect whether consequential AI systems are actually bounded before they merge, deploy, send, spend, or touch production data. Publicly, it offers a released proof, a claim-check on-ramp, and explicit claim limits.</p>
+      <div class="actions">
+        <a class="button button-primary" href="https://github.com/Anans-AI/anans-containment-proofs">Verify the public proof <span aria-hidden="true">→</span></a>
+        <a class="button" href="claim-check.html">Try Claim Check</a>
+        <a class="button button-quiet" href="agent-admissibility-review.html">Request private review</a>
+      </div>
+    </div>
+    <figure class="hero-visual">
+      <img src="assets/anans-spider.jpg" width="940" height="878" alt="ANANS spider suspended in an illuminated network web">
+      <figcaption>
+        <span>Authority outside the worker</span>
+        <span>Evidence attached to the action</span>
+        <span>Refusal remains valid</span>
+      </figcaption>
+    </figure>
+  </div>
+</section>
 
-<section class="band"><div class="wrap band-grid">
-<div class="kicker">01 / Constitutional law</div>
-<blockquote>Capability can expand without consequential authority expanding.</blockquote>
-</div></section>
+<section class="thesis" aria-label="ANANS thesis">
+  <div class="wrap thesis-grid">
+    <article>
+      <span class="thesis-icon" aria-hidden="true">◇</span>
+      <h2>Autonomy without governance is brittle.</h2>
+      <p>Unbounded systems find edges. Edges become failures.</p>
+    </article>
+    <article>
+      <span class="thesis-icon" aria-hidden="true">⚖</span>
+      <h2>Governance without agency is inert.</h2>
+      <p>Rules without useful action create process, not outcomes.</p>
+    </article>
+    <article>
+      <span class="thesis-icon spider" aria-hidden="true">✦</span>
+      <h2>ANANS combines both.</h2>
+      <p>Bounded agency. Reviewable evidence. Authority held outside the worker.</p>
+    </article>
+  </div>
+</section>
 
-<section class="section" id="proof"><div class="wrap">
-<div class="section-head"><div class="kicker">02 / Released proof</div><div>
-<h2>One claim. One frozen evidence bundle. Offline verification.</h2>
-<p class="section-intro">The public proof repository is an evidence membrane, not a development workspace. It exposes the released evidence and verifier required to inspect the admitted claim; unreleased proof machinery stays private.</p>
-</div></div>
-<div class="cards">
-<article class="card"><div class="label">Claim</div><h3>Bound the statement</h3><p>The release states exactly what was denied in the recorded harness and avoids general safety claims.</p><div class="status pass">Published</div></article>
-<article class="card"><div class="label">Evidence</div><h3>Freeze the record</h3><p>The public release binds the evidence bundle to a specific version and public hashes.</p><div class="status pass">Frozen</div></article>
-<article class="card"><div class="label">Verification</div><h3>Reproduce the check</h3><p>A reviewer can run the included verifier offline against the released evidence.</p><div class="status pass">Public on-ramp</div></article>
-</div>
-<div class="proofbox">
-<strong>Current public verification command</strong>
-<pre>cd proofs/nist-ma12/v0.1.0-audit
-python EVIDENCE/VERIFY.py --evidence_dir EVIDENCE</pre>
-</div>
-</div></section>
+<section class="section" id="buyers">
+  <div class="wrap">
+    <div class="section-head centered">
+      <p class="kicker">Who this is for</p>
+      <h2>For teams preparing consequential agents.</h2>
+      <p class="section-intro">If your system can merge code, deploy infrastructure, contact customers, access production data, or cause spend, the question is not just what it can do. The question is what it must never do, and how you know.</p>
+    </div>
+    <div class="capability-grid five">
+      <article class="mini-card"><span aria-hidden="true">↗</span><h3>Merge and deploy</h3></article>
+      <article class="mini-card"><span aria-hidden="true">▤</span><h3>Production systems</h3></article>
+      <article class="mini-card"><span aria-hidden="true">◌</span><h3>Customer communication</h3></article>
+      <article class="mini-card"><span aria-hidden="true">$</span><h3>Spend and commitments</h3></article>
+      <article class="mini-card"><span aria-hidden="true">⌁</span><h3>Privileged data access</h3></article>
+    </div>
+  </div>
+</section>
 
-<section class="section" id="claim-check"><div class="wrap">
-<div class="section-head"><div class="kicker">03 / Public Claim Check</div><div>
-<h2>One public claim. A bounded evidence check. Explicit limits.</h2>
-<p class="section-intro">Phase 0 accepts one already-public claim and public source for a passive, read-only correspondence check. The result exposes at most two material observations, a residual-trust item, a claim ceiling or falsifier, and public-source receipts. Execution is manually mediated; there is no public CE runtime endpoint.</p>
-<div class="actions"><a class="primary" href="claim-check.html">Open Public Claim Check</a></div>
-</div></div>
-</div></section>
+<section class="section section-toned" id="review">
+  <div class="wrap offer-grid">
+    <article class="offer-card">
+      <p class="kicker">Private pilot engagement</p>
+      <h2>A bounded private review for consequential AI systems.</h2>
+      <div class="commercial-line"><span>Fixed-fee pilot</span><strong>US$5,000</strong></div>
+      <div class="decision-line"><span>Decision output</span><strong class="decision pass">PASS</strong><b>/</b><strong class="decision hold">HOLD</strong><b>/</b><strong class="decision blocked">BLOCKED</strong></div>
+      <p>One bounded private agent or workflow review. ANANS maps the consequential action surface, checks the control boundary, identifies bypass paths and evidence gaps, and returns an explicit deployment-admissibility decision for the reviewed scope.</p>
+      <div class="actions"><a class="button button-primary" href="agent-admissibility-review.html">Review scope and pilot terms</a></div>
+    </article>
+    <aside class="nonclaim-panel" aria-label="Review limits">
+      <h3>Explicit limits</h3>
+      <div class="nonclaim-grid">
+        <span>Not a certification</span>
+        <span>Not legal advice</span>
+        <span>Not regulatory approval</span>
+        <span>Not universal safety</span>
+        <span>Not proof of production readiness</span>
+        <span>Not a substitute for operator authorization</span>
+      </div>
+    </aside>
+  </div>
+</section>
 
-<section class="section" id="review"><div class="wrap">
-<div class="section-head"><div class="kicker">04 / Private Agent Admissibility Review</div><div>
-<h2>A bounded deployment decision for consequential agents.</h2>
-<p class="section-intro">For teams preparing agents that can merge, deploy, send, spend, access production data, or otherwise create real-world effects. The review maps the consequential action surface, authority boundary, pre-execution controls, evidence gaps, bypass paths, and residual trust before returning an explicit <strong>PASS / HOLD / BLOCKED</strong> decision for the reviewed scope.</p>
-<div class="actions"><a class="primary" href="agent-admissibility-review.html">Review scope and pilot terms</a></div>
-</div></div>
-<div class="cards">
-<article class="card"><div class="label">Decision</div><h3>Exact action scope</h3><p>Identify what the agent is actually being admitted to do, through which tools and credentials.</p></article>
-<article class="card"><div class="label">Evidence</div><h3>Control quality</h3><p>Separate prevention, approval, receipts, and residual trust rather than treating an audit log as proof of control.</p></article>
-<article class="card"><div class="label">Pilot</div><h3>Fixed fee US$5,000</h3><p>One bounded private agent/workflow review. Engagement begins only after scope and terms are mutually agreed.</p></article>
-</div>
-</div></section>
+<section class="section" id="proof">
+  <div class="wrap">
+    <div class="section-head">
+      <div><p class="kicker">Public evidence and on-ramp</p></div>
+      <div><h2>Start with something a stranger can inspect.</h2><p class="section-intro">The public surface stays narrower than the private architecture. It exposes a bounded released claim and a low-friction way to examine one public claim against public evidence.</p></div>
+    </div>
+    <div class="split-cards">
+      <article class="feature-card proof-card">
+        <span class="card-tag released">Released</span>
+        <h3>Frozen public proof</h3>
+        <p>A released evidence bundle with an offline verifier. It supports one bounded claim; it does not establish universal containment or production readiness.</p>
+        <pre><code>cd proofs/nist-ma12/v0.1.0-audit
+python EVIDENCE/VERIFY.py --evidence_dir EVIDENCE</code></pre>
+        <a class="text-link" href="https://github.com/Anans-AI/anans-containment-proofs">Open the evidence bundle →</a>
+      </article>
+      <article class="feature-card">
+        <span class="card-tag mediated">Manual-mediated</span>
+        <h3>Public Claim Check</h3>
+        <p>Send one already-public claim and one public source. The result gives at most two material observations, source receipts, residual trust, and a claim ceiling or falsifier.</p>
+        <p class="boundary-note"><strong>Boundary:</strong> passive and read-only. No authenticated target access, active testing, spend, deployment, or public CE runtime endpoint.</p>
+        <a class="button" href="claim-check.html">Try Claim Check</a>
+      </article>
+    </div>
+  </div>
+</section>
 
-<section class="section" id="ce"><div class="wrap">
-<div class="section-head"><div class="kicker">05 / Larger system</div><div>
-<h2>The proof and review are narrower than the Cognitive Exoskeleton.</h2>
-<p class="section-intro">ANANS is developing a persistent machine organization that can form intermediate goals and coordinate bounded work downstream of externally held purpose and consequential authority. The public proof and review offer do not claim to validate that whole system.</p>
-</div></div>
-<div class="cards">
-<article class="card"><div class="label">Purpose</div><h3>Externally held</h3><p>The system does not become the source of its own ultimate purpose or consequential permissions.</p></article>
-<article class="card"><div class="label">Initiative</div><h3>Increasingly autonomous</h3><p>Intermediate goal formation and work organization may become more autonomous inside the admitted envelope.</p></article>
-<article class="card"><div class="label">Authority</div><h3>Not self-generated</h3><p>Successful reasoning or performance does not create new consequential permission.</p></article>
-</div>
-</div></section>
+<section class="section section-toned" id="progress">
+  <div class="wrap narrow">
+    <div class="section-head centered">
+      <p class="kicker">Public state</p>
+      <h2>Progress under governance.</h2>
+      <p class="section-intro">ANANS grades its own public objects rather than collapsing research, local evidence, commercial offers, and live authority into one maturity claim.</p>
+    </div>
+    <div class="status-table" role="table" aria-label="ANANS public progress">
+      <div class="status-row" role="row"><span role="cell">NIST-MA12-001 bounded proof</span><strong class="chip chip-green" role="cell">Released</strong></div>
+      <div class="status-row" role="row"><span role="cell">Public Claim Check</span><strong class="chip chip-amber" role="cell">Manual-mediated</strong></div>
+      <div class="status-row" role="row"><span role="cell">Agent Admissibility Review</span><strong class="chip chip-amber" role="cell">Pilot offer</strong></div>
+      <div class="status-row" role="row"><span role="cell">Cognitive Exoskeleton milestone</span><strong class="chip chip-blue" role="cell">Local evidence</strong></div>
+      <div class="status-row" role="row"><span role="cell">Agent-to-agent P/L centers</span><strong class="chip chip-violet" role="cell">Track X seed</strong></div>
+      <div class="status-row" role="row"><span role="cell">Live consequential actuation</span><strong class="chip chip-red" role="cell">Withheld</strong></div>
+    </div>
+    <p class="table-caption">Progress is disclosed with bounded claims and explicit non-claims.</p>
+  </div>
+</section>
 
-<section class="section" id="evidence"><div class="wrap">
-<div class="section-head"><div class="kicker">06 / Public evidence state</div><div>
-<h2>What this site supports today.</h2>
-<p class="section-intro">Public claims are deliberately separated from private development state and commercial hypotheses.</p>
-</div></div>
-<div class="table-wrap"><table>
-<thead><tr><th>Public object</th><th>State</th><th>Meaning</th></tr></thead>
-<tbody>
-<tr><td>NIST-MA12-001 bounded proof</td><td class="state pass">Released · frozen</td><td>The selected constraint denied the recorded forbidden action in the bounded harness; the release provides an offline verifier.</td></tr>
-<tr><td>Public Claim Check Phase 0</td><td class="state pass">Manual-mediated</td><td>A public-source, passive/read-only teaser surface. No public CE runtime endpoint or active target testing.</td></tr>
-<tr><td>Agent Admissibility Review</td><td class="state pass">Pilot offer</td><td>A private bounded review service; the US$5,000 fee is a commercial offer, not evidence of demand or willingness to pay.</td></tr>
-<tr><td>Cognitive Exoskeleton v0.3.0 milestone</td><td class="state pass">Local evidence</td><td>A bounded local organizational milestone exists; this site does not promote it to production readiness.</td></tr>
-<tr><td>Live consequential actuation</td><td class="state hold">Withheld</td><td>No production deployment or real-value actuation is authorized or claimed by this page.</td></tr>
-</tbody>
-</table></div>
-</div></section>
+<section class="section machine-section" id="machine-org">
+  <div class="wrap">
+    <div class="section-head">
+      <div><p class="kicker">Bounded machine organization</p><span class="card-tag seed">Track X seed</span></div>
+      <div>
+        <h2>A machine organization made of accountable service centers.</h2>
+        <p class="section-intro">ANANS models work as P/L-accountable centers. Each center owns one service result, one budget ceiling, one evidence contract, and one failure state. Some serve people. Others serve authorized agents.</p>
+      </div>
+    </div>
 
-<section class="section"><div class="wrap">
-<div class="section-head"><div class="kicker">07 / Non-claims</div><div>
-<h2>What the public surface does not establish.</h2>
-<p class="section-intro">The claim ceiling stays narrower than the private architecture ambition and the commercial hypothesis.</p>
-</div></div>
-<ul class="nonclaims">
-<li>The public proof is not a deployment certificate and does not establish universal agent safety.</li>
-<li>The released proof does not establish OS-level containment or coverage of every execution path.</li>
-<li>The Public Claim Check is not a certification, vulnerability assessment, penetration test, or private implementation review.</li>
-<li>The Agent Admissibility Review is not a certification, legal opinion, regulatory approval, or universal safety assessment.</li>
-<li>Publishing a US$5,000 pilot offer does not establish buyer demand, willingness to pay, product-market fit, revenue, or external validation.</li>
-<li>ANANS is not represented here as a production-ready autonomous company or general AGI.</li>
-<li>No real capital control, real payment, or production deployment is claimed here.</li>
-<li>Reference to NIST identifies a mapping source; it does not imply NIST validation, acceptance, or endorsement.</li>
-<li>The public site is not a specification for reconstructing unreleased ANANS implementation, ADE machinery, or proprietary corpus content.</li>
-</ul>
-</div></section>
+    <div class="service-lanes">
+      <article class="lane-card">
+        <p class="lane-label">Human-facing centers</p>
+        <h3>Concrete outcomes for operators and teams.</h3>
+        <ul class="service-list">
+          <li><strong>Check a claim</strong><span>Public evidence correspondence</span></li>
+          <li><strong>Review an agent</strong><span>PASS / HOLD / BLOCKED boundary decision</span></li>
+          <li><strong>Fix the boundary</strong><span>Candidate remediation and evidence work</span></li>
+          <li><strong>Maintain admission</strong><span>Candidate change review and recurring assurance</span></li>
+        </ul>
+      </article>
+      <article class="lane-card lane-highlight">
+        <p class="lane-label">Agent-to-agent P/L centers</p>
+        <h3>Machine-readable services inside admitted authority.</h3>
+        <div class="service-chip-grid">
+          <span>Evidence verification</span>
+          <span>Experiment execution</span>
+          <span>Build and test</span>
+          <span>Policy translation</span>
+          <span>Resource routing</span>
+          <span>Incident recovery</span>
+        </div>
+        <p class="boundary-note"><strong>Agent-to-agent does not mean agent-sovereign.</strong> A center cannot sign, spend, deploy, merge, publish, or widen its own authority.</p>
+      </article>
+    </div>
 
-<section class="section" id="contact"><div class="wrap">
-<div class="section-head"><div class="kicker">08 / Contact</div><div>
-<h2>For teams working on consequential AI systems.</h2>
-<p class="section-intro">To request a private review, identify the agent or workflow, the tools or systems it can affect, the consequential action you want to admit, and the evidence already available.</p>
-<div class="actions"><a class="primary" href="mailto:hello@anansai.org?subject=Agent%20Admissibility%20Review">Request a private review</a><a href="mailto:hello@anansai.org">hello@anansai.org</a></div>
-</div></div>
-</div></section>
+    <div class="a2a-flow" aria-label="Agent-to-agent service flow">
+      <div><span>01</span><strong>Requesting agent</strong><small>Machine-readable work order</small></div>
+      <b aria-hidden="true">→</b>
+      <div><span>02</span><strong>Admission gate</strong><small>Scope, budget, evidence, authority</small></div>
+      <b aria-hidden="true">→</b>
+      <div><span>03</span><strong>Bounded P/L center</strong><small>Perform, refuse, or quarantine</small></div>
+      <b aria-hidden="true">→</b>
+      <div><span>04</span><strong>Receipts and ledger</strong><small>Result, cost, residual trust</small></div>
+    </div>
+    <div class="actions centered-actions"><a class="button" href="bounded-machine-organization.html">Inspect the machine-organization model</a></div>
+  </div>
+</section>
+
+<section class="section section-toned" id="ade-ce">
+  <div class="wrap twin-grid">
+    <article class="system-card">
+      <p class="kicker">ADE</p>
+      <h2>Autonomous Experimental Loop</h2>
+      <p>ADE helps propose an experiment, run it, inspect the result, and refine the next step — with bounded authority and evidence preserved.</p>
+      <div class="step-flow">
+        <span><b>01</b>Propose</span><i>→</i><span><b>02</b>Run</span><i>→</i><span><b>03</b>Inspect</span><i>→</i><span><b>04</b>Refine</span>
+      </div>
+      <p class="state-line"><strong>State:</strong> research-and-build programme; this page does not claim general autonomous science or production readiness.</p>
+    </article>
+    <article class="system-card">
+      <p class="kicker">CE</p>
+      <h2>Cognitive Exoskeleton</h2>
+      <p>The Cognitive Exoskeleton helps coordinate bounded machine work, preserve human-held purpose and authority, and make downstream activity reviewable.</p>
+      <div class="feature-tile-grid">
+        <span>Intermediate goals</span>
+        <span>Bounded coordination</span>
+        <span>Reviewable outputs</span>
+        <span>No self-authorization</span>
+      </div>
+      <p class="state-line"><strong>State:</strong> bounded local milestone evidence exists; production deployment and real-value authority remain withheld.</p>
+    </article>
+  </div>
+</section>
+
+<section class="section" id="difference">
+  <div class="wrap">
+    <div class="section-head centered"><p class="kicker">Control properties</p><h2>Why ANANS is different.</h2></div>
+    <div class="benefit-grid">
+      <article><span aria-hidden="true">✓</span><h3>Only admitted work can run.</h3><p>Admissibility before execution</p></article>
+      <article><span aria-hidden="true">▧</span><h3>Receipts preserve what happened.</h3><p>Receipt spine</p></article>
+      <article><span aria-hidden="true">⌧</span><h3>Deny by default. Open by authorization.</h3><p>Fail-closed gates</p></article>
+      <article><span aria-hidden="true">◉</span><h3>Humans can inspect, question, and override.</h3><p>Operator reviewability</p></article>
+      <article><span aria-hidden="true">≋</span><h3>Access is scoped, metered, and revocable.</h3><p>Resource governance</p></article>
+      <article><span aria-hidden="true">⬡</span><h3>Sensitive data stays within governed limits.</h3><p>Confidential boundary</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="closing" id="contact">
+  <div class="wrap closing-grid">
+    <div class="closing-art" aria-hidden="true"><span></span></div>
+    <div>
+      <p class="kicker">Public entry</p>
+      <h2>Explore the boundary.</h2>
+      <p>Start with the public proof, try the claim-check on-ramp, inspect the bounded machine-organization model, or request a private review for a consequential AI workflow.</p>
+      <div class="actions">
+        <a class="button button-primary" href="https://github.com/Anans-AI/anans-containment-proofs">Verify the public proof</a>
+        <a class="button" href="mailto:hello@anansai.org">Contact ANANS</a>
+      </div>
+    </div>
+  </div>
+</section>
 </main>
 
-<footer class="footer"><div class="wrap footer-grid">
-<div><div class="mark">ANANS</div><p>Governed machine autonomy under externally held purpose and consequential authority.</p></div>
-<div><h3>Inspect</h3><p><a href="https://github.com/Anans-AI/anans-containment-proofs">Containment proofs</a><br><a href="claim-check.html">Public Claim Check</a><br><a href="agent-admissibility-review.html">Private Review</a><br><a href="governance.html">Governance</a></p></div>
-<div><h3>Built in</h3><p>Trinidad &amp; Tobago<br>© 2026 ANANS</p></div>
-</div></footer>
+<footer class="footer">
+  <div class="wrap footer-row">
+    <a class="brand" href="index.html" aria-label="ANANS home">
+      <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 17c-7 0-12 6-12 13 0 9 6 18 12 18s12-9 12-18c0-7-5-13-12-13Zm0-9 4 7h-8l4-7Zm-13 13L8 14m11 16L5 27m14 12L7 47m38-26 11-7M45 30l14-3M45 39l12 8M25 19l-7-9m21 9 7-9"/></svg>
+      <span>ANANS</span>
+    </a>
+    <p>Governed machine autonomy · Trinidad &amp; Tobago</p>
+    <a href="mailto:hello@anansai.org">hello@anansai.org</a>
+  </div>
+</footer>
 </body>
 </html>
