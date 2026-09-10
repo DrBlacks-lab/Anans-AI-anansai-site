@@ -1,17 +1,17 @@
 {
-  "schema_version": "0.1",
-  "recorded_at": "2026-09-10T19:34:00Z",
+  "schema_version": "0.2",
+  "recorded_at": "2026-09-10T19:38:00Z",
   "project": "ANANS Village",
   "pm_state": "ACTIVE",
   "repository": "DrBlacks-lab/Anans-AI-anansai-site",
   "branch": "aspeak/anans-village-preview-auth-v1",
-  "source_head_before_status_commit": "da3a1fabcd3bbaf159057f415c4f24efeabaa37e",
+  "source_head_before_status_commit": "ecc1199861a9b54dbecc76b1e7a427a94fd05ee1",
   "implementation_state": {
-    "restricted_preview_auth": "IMPLEMENTED_AND_DEPLOYED_PREVIOUSLY; current redeploy in progress at status observation",
+    "restricted_preview_auth": "IMPLEMENTED_AND_RAILWAY_DEPLOYED",
     "admin_guest_role_separation": "IMPLEMENTED_NOT_INDEPENDENTLY_EXTERNALLY_PROVEN",
     "semantic_village_landing": "IMPLEMENTED_RESTRICTED_PREVIEW",
-    "canonical_village_registry": "INITIAL_CANDIDATE_CREATED_NOT_YET_VALIDATED_BY_AUTOMATED_INVARIANTS",
-    "backend_binding_registry": "INITIAL_CANDIDATE_CREATED_NOT_YET_FULL_ANANS_BACKEND_BOUND",
+    "canonical_village_registry": "IMPLEMENTED_AND_PROVIDER_TEST_VALIDATED_V0_1",
+    "backend_binding_registry": "IMPLEMENTED_AND_PROVIDER_TEST_VALIDATED_FOR_INTERNAL_INVARIANTS; FULL_ANANS_BACKEND_BINDING_NOT_ESTABLISHED",
     "registry_driven_ui": "SPECIFIED_NOT_BUILT",
     "full_anans_backend_integration": "SPECIFIED_NOT_BUILT",
     "approved_1536x1024_visual_parent": "FROZEN",
@@ -23,14 +23,28 @@
     "pm/FOUNDER_PM_GUIDE.md",
     "pm/PROJECT_CHARTER.json",
     "pm/NEXT_SPRINT.md",
+    "pm/DECISION_LOG.md",
     "village/registry.json",
     "village/backend-bindings.json",
+    "tests/village-registry.test.mjs",
     "STYLE_RESOLUTION_DIRECTIVE.md",
     "preview-server.mjs",
     "index.html"
   ],
-  "current_bottleneck": "Automated registry invariants and registry-driven projection must be implemented before claiming the Village is a backend-integrated ANANS control surface.",
-  "missing_primitive": "validated canonical semantic-to-backend binding layer with truthful live/read-only/manual/not-built state projection",
+  "validated_registry_receipt": {
+    "terminal": "PASS / VILLAGE_REGISTRY_INVARIANTS_VALIDATED",
+    "provider": "Railway",
+    "deployment_id": "2f36b699-47bc-419c-9586-8ad477416a79",
+    "deployment_status": "SUCCESS",
+    "tested_commit": "48e318ef913157fbb37015d755f50997dfcc1665",
+    "building_count": 12,
+    "backend_binding_count": 12,
+    "visible_landing_building_count": 10,
+    "predeploy_gate": "npm run check && npm test"
+  },
+  "revlane_correction": "Authority requirements attach to consequential action surfaces, not to read-only discussion of authority concepts. The initial overbroad Court invariant was rejected by the provider test and corrected before retention.",
+  "current_bottleneck": "Registry-driven projection plus route-level evidence: visible buildings still contain manually maintained HTML labels/routes and most ANANS functions represented by the village are static/manual or explicitly not built on this website surface.",
+  "missing_primitive": "server/build-time projection of canonical village registry into role-aware UI plus tested backend route bindings",
   "failure_frontier": [
     "Current public-site pages are mostly static/manual projections, not live ANANS backend functions.",
     "Private ANANS backend modules are not in custody in this website repository and must not be inferred.",
@@ -38,24 +52,16 @@
     "AEL user/comprehension evidence has not yet been generated for the registry-driven implementation."
   ],
   "authority_boundary": {
-    "preview_only_repairs_and_redeploys": "AUTHORIZED_BY_EXISTING_MANDATE",
+    "preview_only_repairs_tests_and_redeploys": "AUTHORIZED_BY_EXISTING_MANDATE",
     "public_replacement_or_material_main_promotion": "FOUNDER_DECISION_REQUIRED",
     "new_spend_or_external_commitment": "FOUNDER_DECISION_REQUIRED",
     "private_anans_source_or_secret_access": "EXPLICIT_AUTHORITY_AND_CUSTODY_REQUIRED"
   },
-  "sharpest_lawful_next_action": "Implement S1 registry validation tests, then reconcile the restricted landing UI to the canonical registry without inventing missing backend capabilities.",
-  "deployment_observation": {
-    "provider": "Railway",
-    "project_id": "217f5109-f150-4895-93c3-4ed5ae07c759",
-    "service_id": "83ba31e3-1a4e-4385-83d1-ba17a65f8588",
-    "environment_id": "fcda7ee0-5ec4-4f26-9135-4ec5e487e9c6",
-    "deployment_id": "2cc0ff8b-0eaa-4375-b006-f87afaa8d028",
-    "status_at_observation": "BUILDING"
-  },
+  "sharpest_lawful_next_action": "Implement S2 registry-driven UI projection on the restricted preview, then S3 route assay. Preserve explicit NOT_BUILT/manual states rather than synthesizing missing ANANS backends.",
   "explicit_non_claims": [
-    "This PM pass does not establish full ANANS backend integration.",
-    "The initial registries are implemented artifacts but have not yet passed an automated registry invariant suite.",
-    "No public replacement of anansai.org is authorized by these files.",
+    "Registry invariant validation does not establish full ANANS backend integration.",
+    "Provider deployment success is not independent external usability validation.",
+    "No public replacement of anansai.org is authorized by this PM state.",
     "No new consequential, commercial, spending or publication authority is created.",
     "No R9 advancement follows from the Village build."
   ]
