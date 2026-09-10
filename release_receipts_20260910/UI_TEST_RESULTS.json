@@ -1,0 +1,63 @@
+{
+  "terminal": "PARTIAL_UI_STATIC_AND_RUNTIME_CHECKS_PASS_BROWSER_LAYOUT_NOT_VERIFIED",
+  "checks": [
+    {
+      "check": "registry_generated_destinations",
+      "pass": true
+    },
+    {
+      "check": "contact_mailto_not_exposed",
+      "pass": true
+    },
+    {
+      "check": "approved_visual_intrinsic_dimensions",
+      "pass": true
+    },
+    {
+      "check": "static_asset_served_on_windows",
+      "pass": true
+    },
+    {
+      "check": "one_primary_village_visual",
+      "pass": true
+    },
+    {
+      "check": "approved_attribution_present",
+      "pass": true
+    },
+    {
+      "check": "no_tiled_transport",
+      "pass": true
+    },
+    {
+      "check": "keyboard_focus_visible",
+      "pass": true
+    },
+    {
+      "check": "responsive_layout_contract",
+      "pass": true
+    },
+    {
+      "check": "destination_labels_match_registry",
+      "pass": true
+    },
+    {
+      "check": "bounded_public_claim_language",
+      "pass": true
+    },
+    {
+      "check": "server_file_not_exposed",
+      "pass": true
+    }
+  ],
+  "browser_layout_validation": {
+    "terminal": "BLOCKED_BROWSER_LAYOUT_VALIDATION_HELPER_UNAVAILABLE",
+    "attempted": true,
+    "recovery_attempts": 1,
+    "error": "failed to write kernel assets: path not found",
+    "desktop": "NOT_VERIFIED",
+    "tablet": "NOT_VERIFIED",
+    "mobile": "NOT_VERIFIED",
+    "static_responsive_contract": true
+  }
+}

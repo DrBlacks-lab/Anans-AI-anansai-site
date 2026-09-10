@@ -1,0 +1,61 @@
+{
+  "schema": "anans.hash-manifest.v0.1",
+  "files": [
+    {
+      "path": "AEL_RESULTS.json",
+      "sha256": "1f0f0bbbebac8bedc05ab7d53f640e0ea09db5df14d9f8ead7bd018bc383d458"
+    },
+    {
+      "path": "AUTH_TEST_RESULTS.json",
+      "sha256": "93a4a903ff7f4dde56815fd667841da5f00b0e7e4f72bbdd12d9f854835f0914"
+    },
+    {
+      "path": "BACKEND_BINDINGS.json",
+      "sha256": "84ffdb913fb1896ca8fa5b5f6a8d6d6391053998a1d28bed2e68edb64334ba6c"
+    },
+    {
+      "path": "BROWSER_LAYOUT_RESULTS.json",
+      "sha256": "a0e9a66b6f13a6cba5143f4678ecb083b0113bd3e90d2a766b4ba254bfb2ea23"
+    },
+    {
+      "path": "DEPLOYMENT_RECEIPT.json",
+      "sha256": "47938ee9422511a5df56a92d5fa2a7a1b1fbbc9911473d858b7c7a3275269b09"
+    },
+    {
+      "path": "REGISTRY_TEST_RESULTS.json",
+      "sha256": "02a05177f5abb18c0407d1458df581531ff25f1625b72533f984d841d3405a19"
+    },
+    {
+      "path": "REVLANE_REPORT.md",
+      "sha256": "abb18cd9020028beab442d289bf7437bcbe9d34dd658c9d9acd7464d4afec2bb"
+    },
+    {
+      "path": "ROUTE_MANIFEST.json",
+      "sha256": "cce6a131e1293c91be89de3846dcdc9a5b4ac045b2a5d097b437e16eb5228c17"
+    },
+    {
+      "path": "ROUTE_TEST_RESULTS.json",
+      "sha256": "8818646077763f62a4d1c7f0d4b6baf4125ddd6cae55274041df2c1e326e0607"
+    },
+    {
+      "path": "RUN_REPORT.md",
+      "sha256": "7d3ecf036c846881184f5f9b98f82458247552e7494eab942dc11420c494ccb2"
+    },
+    {
+      "path": "TERMINAL_RECEIPT.json",
+      "sha256": "e20de576538b68eb6117e93677efc4d0dabbe1e224698e5ddf4804c3a00c1161"
+    },
+    {
+      "path": "TRACK_X_REPORT.md",
+      "sha256": "0805551064f71ae8bef360c17f80a740125712fcf720d9897be13b6af1eb2a3b"
+    },
+    {
+      "path": "UI_TEST_RESULTS.json",
+      "sha256": "b501ab9ec968910a2b07177c549a698a79e76afc924078f6c196cdd5debb9923"
+    },
+    {
+      "path": "VILLAGE_REGISTRY.json",
+      "sha256": "4e2d676baa6c68d9e731c5b8c443d698140bee2e2c0acea3fa9b803998dd23a2"
+    }
+  ]
+}

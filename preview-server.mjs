@@ -1,9 +1,10 @@
 import http from "node:http";
 import { readFile, stat } from "node:fs/promises";
-import { extname, join, normalize, resolve } from "node:path";
+import { extname, join, normalize, resolve, relative, sep, isAbsolute } from "node:path";
 import { createHmac, timingSafeEqual, scryptSync, randomUUID } from "node:crypto";
 
 const PORT = Number(process.env.PORT || 3000);
+const HOST = process.env.HOST || "127.0.0.1";
 const ROOT = resolve(process.cwd());
 const SESSION_NAME = "anans_preview_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 8;
@@ -30,6 +31,17 @@ function parseGuests() {
 }
 const GUESTS = parseGuests();
 const ADMIN_SESSION_VERSION = Number(process.env.ADMIN_SESSION_VERSION || "1");
+let REGISTRY;
+let ROUTES;
+let BACKEND_BINDINGS;
+try {
+  REGISTRY = JSON.parse(await readFile(resolve(join(ROOT, "village/registry.json")), "utf8"));
+  ROUTES = JSON.parse(await readFile(resolve(join(ROOT, "village/routes.json")), "utf8"));
+  BACKEND_BINDINGS = JSON.parse(await readFile(resolve(join(ROOT, "village/backend-bindings.json")), "utf8"));
+} catch (error) {
+  console.error(`Village semantic artifacts unavailable: ${error.message}`);
+  process.exit(1);
+}
 
 const safeUser = value => String(value || "").trim().toLowerCase().slice(0, 80);
 const b64url = input => Buffer.from(input).toString("base64url");
@@ -58,7 +70,9 @@ function readSession(req) {
   const raw = req.headers.cookie || "";
   const entry = raw.split(";").map(x => x.trim()).find(x => x.startsWith(`${SESSION_NAME}=`));
   if (!entry) return null;
-  const value = decodeURIComponent(entry.slice(SESSION_NAME.length + 1));
+  let value;
+  try { value = decodeURIComponent(entry.slice(SESSION_NAME.length + 1)); }
+  catch { return null; }
   const [payload, signature] = value.split(".");
   if (!payload || !signature) return null;
   const expected = Buffer.from(sign(payload));
@@ -142,6 +156,24 @@ function redirect(res, location, cookie = null) {
 const sessionCookie = (value, maxAge = SESSION_TTL_SECONDS) => `${SESSION_NAME}=${encodeURIComponent(value)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${Math.max(0, maxAge)}`;
 const clearCookie = () => sessionCookie("", 0);
 const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+const PLACE_CLASSES = {
+  gate: "p-gate", court: "p-court", "knowledge-house": "p-knowledge", "hall-of-records": "p-records",
+  observatory: "p-observatory", workshop: "p-workshop", market: "p-market", commons: "p-commons", "farm-resources": "p-resources"
+};
+function renderVillageDestinations() {
+  const buildings = new Map((REGISTRY.buildings || []).map(building => [building.building_id, building]));
+  return (ROUTES.routes || []).filter(route => route.visible).map(route => {
+    const building = buildings.get(route.building_id);
+    if (!building) return "";
+    const external = route.kind === "external";
+    const attrs = external ? ' target="_blank" rel="noreferrer noopener"' : "";
+    return `<a class="place ${PLACE_CLASSES[building.building_id] || ""}" href="${esc(route.path)}" data-building-id="${esc(building.building_id)}"${attrs}><strong>${esc(building.public_name)}</strong><span>${esc(building.public_purpose)}</span></a>`;
+  }).join("\n    ");
+}
+function serveJson(res, value, headOnly = false) {
+  const body = JSON.stringify(value, null, 2);
+  return send(res, 200, body, { "Content-Type": "application/json; charset=utf-8", "Content-Length": String(Buffer.byteLength(body)) }, headOnly);
+}
 
 const loginPage = (error = "") => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><title>ANANS Village — Restricted Preview</title><link rel="stylesheet" href="/auth.css"></head><body><main><div class="mark">ANANS</div><h1>Restricted village preview</h1><p>Testing surface. Access is limited to the Founder/admin account and explicitly provisioned guest accounts.</p>${error ? `<p class="error">${esc(error)}</p>` : ""}<form method="post" action="/login" autocomplete="on"><label for="username">Username</label><input id="username" name="username" required autocomplete="username" maxlength="80"><label for="password">Password</label><input id="password" name="password" type="password" required autocomplete="current-password" maxlength="256"><button type="submit">Enter restricted preview</button></form><p class="small">Authentication grants preview access only. It does not grant deployment, publication, spending, or other consequential authority.</p></main></body></html>`;
 
@@ -150,18 +182,19 @@ function adminPage(session) {
     const active = Boolean(guestRecord(name));
     return `<li><strong>${esc(name)}</strong> · <span class="${active ? "ok" : "hold"}">${active ? "enabled" : "disabled/expired"}</span><br><span class="meta">expires: ${esc(g?.expires_at || "not set")} · session_version: ${esc(g?.session_version || 1)}</span></li>`;
   }).join("") || "<li>No guest accounts configured.</li>";
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>ANANS Preview Admin</title><link rel="stylesheet" href="/auth.css"></head><body><main><div class="mark">ANANS</div><h1>Preview administration</h1><p>Signed in as <strong>${esc(session.sub)}</strong>. This surface exposes preview-account state only.</p><ul class="guest-list">${rows}</ul><p class="small">Guest provisioning remains explicit and configuration-backed. There is no self-registration. Incrementing a guest's <code>session_version</code>, disabling it, or expiring it invalidates outstanding sessions on the next request.</p><div class="row"><a class="button" href="/">Open village preview</a><a class="button" href="/logout">Sign out</a></div></main></body></html>`;
+  const buildingRows = REGISTRY.buildings.map(building => `<tr><th scope="row">${esc(building.public_name)}</th><td>${esc(building.primitive_binding)}</td><td>${esc(building.backend_class)}</td><td>${esc(building.implementation_state)}</td><td>${esc(building.role_visibility.join(", "))}</td><td>${esc(building.health)}</td><td>${esc(building.unresolved_blocker || "none")}</td><td><code>${esc(building.receipt_location)}</code></td></tr>`).join("");
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>ANANS Preview Admin</title><link rel="stylesheet" href="/auth.css"></head><body><main class="admin-shell"><div class="mark">ANANS</div><h1>Preview administration</h1><p>Signed in as <strong>${esc(session.sub)}</strong>. This surface exposes bounded preview state only.</p><h2>Guest access</h2><ul class="guest-list">${rows}</ul><p class="small">Guest provisioning remains explicit and configuration-backed. There is no self-registration. Incrementing a guest's <code>session_version</code>, disabling it, or expiring it invalidates outstanding sessions on the next request.</p><h2>Village bindings</h2><div class="table-wrap"><table><thead><tr><th>Building</th><th>Primitive</th><th>Backend</th><th>State</th><th>Roles</th><th>Health</th><th>Blocker</th><th>Receipt</th></tr></thead><tbody>${buildingRows}</tbody></table></div><p class="small">This projection is generated from the canonical registry. It does not expose private topology or grant execution authority.</p><div class="row"><a class="button" href="/">Open village preview</a><a class="button" href="/logout">Sign out</a></div></main></body></html>`;
 }
 
 const MIME = {
   ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".svg": "image/svg+xml",
   ".png": "image/png", ".webp": "image/webp", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
-  ".ico": "image/x-icon", ".xml": "application/xml; charset=utf-8", ".txt": "text/plain; charset=utf-8"
+  ".ico": "image/x-icon", ".xml": "application/xml; charset=utf-8", ".txt": "text/plain; charset=utf-8", ".json": "application/json; charset=utf-8"
 };
 const DENY_FILES = new Set(["package.json", "package-lock.json", "preview-server.mjs", "CNAME", ".nojekyll"]);
 
-async function serveNamedFile(res, relative, headOnly = false) {
-  if (relative === "assets/anans-village.webp") {
+async function serveNamedFile(res, fileRelative, headOnly = false) {
+  if (fileRelative === "assets/anans-village.webp") {
     try {
       const parts = await Promise.all([0,1,2,3].map(i => readFile(resolve(join(ROOT, `assets/anans-village.webp.b64.part-${String(i).padStart(2, "0")}`)), "utf8")));
       const data = Buffer.from(parts.join("").trim(), "base64");
@@ -171,8 +204,10 @@ async function serveNamedFile(res, relative, headOnly = false) {
       return send(res, 500, "Preview image unavailable", { "Content-Type": "text/plain; charset=utf-8" }, headOnly);
     }
   }
-  const filePath = resolve(join(ROOT, relative));
-  if (!filePath.startsWith(ROOT + "/") && filePath !== ROOT) return send(res, 404, "Not found", { "Content-Type": "text/plain; charset=utf-8" }, headOnly);
+  const filePath = resolve(join(ROOT, fileRelative));
+  const rootRelative = relative(ROOT, filePath);
+  const withinRoot = filePath === ROOT || (rootRelative !== ".." && !rootRelative.startsWith(`..${sep}`) && !isAbsolute(rootRelative));
+  if (!withinRoot) return send(res, 404, "Not found", { "Content-Type": "text/plain; charset=utf-8" }, headOnly);
   const ext = extname(filePath).toLowerCase();
   if (!MIME[ext]) return send(res, 404, "Not found", { "Content-Type": "text/plain; charset=utf-8" }, headOnly);
   try {
@@ -199,7 +234,7 @@ async function serveStatic(req, res, session) {
     try {
       const raw = await readFile(resolve(join(ROOT, "index.html")), "utf8");
       const adminNav = session.role === "admin" ? '<a class="admin-nav" href="/admin">Admin</a>' : "";
-      const html = raw.replace("<!--ADMIN_NAV-->", adminNav);
+      const html = raw.replace("<!--ADMIN_NAV-->", adminNav).replace("<!--VILLAGE_DESTINATIONS-->", renderVillageDestinations());
       return send(res, 200, html, { "Content-Type": "text/html; charset=utf-8", "Content-Length": String(Buffer.byteLength(html)) }, headOnly);
     } catch {
       return send(res, 500, "Preview unavailable", { "Content-Type": "text/plain; charset=utf-8" }, headOnly);
@@ -267,6 +302,12 @@ const server = http.createServer(async (req, res) => {
     if (!session) return send(res, 401, JSON.stringify({ authenticated: false }), { "Content-Type": "application/json" });
     return send(res, 200, JSON.stringify({ authenticated: true, role: session.role, username: session.sub }), { "Content-Type": "application/json" });
   }
+  if (["/village/registry.json", "/village/routes.json", "/village/backend-bindings.json"].includes(url.pathname)) {
+    if (!session) return send(res, 401, JSON.stringify({ authenticated: false }), { "Content-Type": "application/json" }, headOnly);
+    if (req.method !== "GET" && req.method !== "HEAD") return send(res, 405, "Method not allowed", { Allow: "GET, HEAD", "Content-Type": "text/plain; charset=utf-8" }, headOnly);
+    const value = url.pathname.endsWith("registry.json") ? REGISTRY : url.pathname.endsWith("routes.json") ? ROUTES : BACKEND_BINDINGS;
+    return serveJson(res, value, headOnly);
+  }
   if (url.pathname === "/admin") {
     if (!session) return redirect(res, "/login");
     if (session.role !== "admin") return send(res, 403, "Forbidden", { "Content-Type": "text/plain; charset=utf-8" });
@@ -276,7 +317,7 @@ const server = http.createServer(async (req, res) => {
   return serveStatic(req, res, session);
 });
 
-server.listen(PORT, "0.0.0.0", () => {
-  console.log(`ANANS restricted preview listening on ${PORT}`);
+server.listen(PORT, HOST, () => {
+  console.log(`ANANS restricted preview listening on http://${HOST}:${PORT}`);
   console.log(`Guest accounts configured: ${Object.keys(GUESTS).length}`);
 });

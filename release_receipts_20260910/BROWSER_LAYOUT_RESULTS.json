@@ -1,0 +1,10 @@
+{
+  "terminal": "BLOCKED_BROWSER_LAYOUT_VALIDATION_HELPER_UNAVAILABLE",
+  "attempted": true,
+  "recovery_attempts": 1,
+  "error": "failed to write kernel assets: path not found",
+  "desktop": "NOT_VERIFIED",
+  "tablet": "NOT_VERIFIED",
+  "mobile": "NOT_VERIFIED",
+  "static_responsive_contract": true
+}

@@ -4,5 +4,5 @@
   "private": true,
   "type": "module",
   "engines": {"node": ">=20 <23"},
-  "scripts": {"start": "node preview-server.mjs", "check": "node --check preview-server.mjs"}
+  "scripts": {"start": "node preview-server.mjs", "check": "node --check preview-server.mjs", "test": "node tools/run_village_sprint_validation.mjs", "validate": "npm run check && npm test"}
 }

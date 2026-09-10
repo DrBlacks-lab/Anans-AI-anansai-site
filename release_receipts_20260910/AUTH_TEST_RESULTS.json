@@ -1,0 +1,66 @@
+{
+  "terminal": "PASS_AUTH_BOUNDARY_SMOKE",
+  "checks": [
+    {
+      "check": "health",
+      "pass": true
+    },
+    {
+      "check": "anonymous_redirect",
+      "pass": true
+    },
+    {
+      "check": "wrong_password_rejected",
+      "pass": true
+    },
+    {
+      "check": "guest_identity_bound",
+      "pass": true
+    },
+    {
+      "check": "guest_admin_denied",
+      "pass": true
+    },
+    {
+      "check": "authenticated_registry_read",
+      "pass": true
+    },
+    {
+      "check": "authenticated_binding_read",
+      "pass": true
+    },
+    {
+      "check": "disabled_and_expired_rejected",
+      "pass": true
+    },
+    {
+      "check": "malformed_cookie_fail_closed",
+      "pass": true
+    },
+    {
+      "check": "tampered_signature_rejected",
+      "pass": true
+    },
+    {
+      "check": "expired_cookie_rejected",
+      "pass": true
+    },
+    {
+      "check": "revoked_or_stale_session_rejected",
+      "pass": true
+    },
+    {
+      "check": "brute_force_throttling_activates",
+      "pass": true
+    },
+    {
+      "check": "admin_preview_access",
+      "pass": true
+    },
+    {
+      "check": "protected_files_rejected",
+      "pass": true
+    }
+  ],
+  "secret_bytes_in_receipt": 0
+}

@@ -1,0 +1,14 @@
+{
+  "terminal_class": "PARTIAL",
+  "terminal": "PARTIAL_ANANS_VILLAGE_BUILD_ADVANCED__RESIDUAL_TECHNICAL_BLOCKER",
+  "local_implementation_terminal": "PASS_IMPLEMENTED_AND_LOCALLY_VALIDATED",
+  "remaining_blockers": [
+    "BLOCKED_BROWSER_LAYOUT_VALIDATION_HELPER_UNAVAILABLE",
+    "BLOCKED_REQUIRED_RAILWAY_DEPLOYMENT_ACTUATOR_NOT_IN_CUSTODY"
+  ],
+  "branch": "aspeak/anans-village-preview-auth-v1",
+  "public_effect_count": 0,
+  "authority_delta": 0,
+  "ael": "PASS_BOUNDED_STRUCTURAL_CANDIDATE_RETAINED",
+  "server_stderr": "empty"
+}

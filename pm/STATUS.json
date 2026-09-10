@@ -1,0 +1,9 @@
+{
+  "schema": "anans.village.pm-status.v0.1",
+  "state": "BUILD_ADVANCED_RESIDUAL_BROWSER_AND_PROVIDER_BLOCKERS",
+  "local_terminal": "PASS_IMPLEMENTED_AND_LOCALLY_VALIDATED_45_OF_45",
+  "browser_layout_terminal": "BLOCKED_BROWSER_LAYOUT_VALIDATION_HELPER_UNAVAILABLE",
+  "railway_terminal": "BLOCKED_REQUIRED_RAILWAY_DEPLOYMENT_ACTUATOR_NOT_IN_CUSTODY",
+  "authority_delta": 0,
+  "public_effect_count": 0
+}

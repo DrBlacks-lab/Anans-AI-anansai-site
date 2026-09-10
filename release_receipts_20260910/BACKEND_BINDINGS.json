@@ -1,0 +1,142 @@
+{
+  "schema": "anans.village.backend-bindings.v0.1",
+  "bindings": [
+    {
+      "binding_id": "static-preview",
+      "backend_class": "READ_ONLY_BACKEND",
+      "implementation_surface": "preview-server.mjs:serveStatic",
+      "route": "GET /*.html",
+      "handler": "serveStatic",
+      "state": "IMPLEMENTED_AND_LOCALLY_VALIDATED",
+      "required_role": "guest_or_admin",
+      "authority_source": "preview_session",
+      "terminal_outcomes": [
+        "PASS_STATIC_PREVIEW",
+        "BLOCKED_INVALID_SESSION"
+      ],
+      "receipt_type": "STATIC_RESPONSE_RECEIPT",
+      "receipt_location": "release_receipts_20260910/ROUTE_TEST_RESULTS.json",
+      "failure_conditions": [
+        "path_escape",
+        "denied_file"
+      ]
+    },
+    {
+      "binding_id": "auth-login",
+      "backend_class": "LIVE_BACKEND",
+      "implementation_surface": "preview-server.mjs:/login",
+      "route": "POST /login",
+      "handler": "handleLogin",
+      "state": "IMPLEMENTED_AND_LOCALLY_VALIDATED",
+      "required_role": "none",
+      "authority_source": "configured_machine_secret",
+      "terminal_outcomes": [
+        "PASS_SESSION_ISSUED",
+        "BLOCKED_AUTHENTICATION_REJECTED"
+      ],
+      "receipt_type": "AUTH_RECEIPT",
+      "receipt_location": "release_receipts_20260910/AUTH_TEST_RESULTS.json",
+      "failure_conditions": [
+        "missing_credentials",
+        "rate_limited",
+        "invalid_password"
+      ]
+    },
+    {
+      "binding_id": "auth-status",
+      "backend_class": "READ_ONLY_BACKEND",
+      "implementation_surface": "preview-server.mjs:/auth/status",
+      "route": "GET /auth/status",
+      "handler": "handleAuthStatus",
+      "state": "IMPLEMENTED_AND_LOCALLY_VALIDATED",
+      "required_role": "guest_or_admin",
+      "authority_source": "signed_preview_session",
+      "terminal_outcomes": [
+        "PASS_IDENTITY_BOUND",
+        "BLOCKED_SESSION_INVALID"
+      ],
+      "receipt_type": "AUTH_STATUS_RECEIPT",
+      "receipt_location": "release_receipts_20260910/AUTH_TEST_RESULTS.json",
+      "failure_conditions": [
+        "malformed_cookie",
+        "expired_session",
+        "stale_session",
+        "tampered_signature"
+      ]
+    },
+    {
+      "binding_id": "admin",
+      "backend_class": "READ_ONLY_BACKEND",
+      "implementation_surface": "preview-server.mjs:/admin",
+      "route": "GET /admin",
+      "handler": "handleAdmin",
+      "state": "IMPLEMENTED_AND_LOCALLY_VALIDATED",
+      "required_role": "admin",
+      "authority_source": "signed_admin_session",
+      "terminal_outcomes": [
+        "PASS_ADMIN_PREVIEW",
+        "BLOCKED_ROLE_DENIED"
+      ],
+      "receipt_type": "ADMIN_RECEIPT",
+      "receipt_location": "release_receipts_20260910/AUTH_TEST_RESULTS.json",
+      "failure_conditions": [
+        "guest_role",
+        "missing_session"
+      ]
+    },
+    {
+      "binding_id": "village-registry",
+      "backend_class": "READ_ONLY_BACKEND",
+      "implementation_surface": "village/registry.json",
+      "route": "GET /village/registry.json",
+      "handler": "serveRegistry",
+      "state": "IMPLEMENTED_AND_LOCALLY_VALIDATED",
+      "required_role": "guest_or_admin",
+      "authority_source": "preview_session",
+      "terminal_outcomes": [
+        "PASS_REGISTRY_READ"
+      ],
+      "receipt_type": "REGISTRY_READ_RECEIPT",
+      "receipt_location": "release_receipts_20260910/AUTH_TEST_RESULTS.json",
+      "failure_conditions": [
+        "missing_session"
+      ]
+    },
+    {
+      "binding_id": "village-routes",
+      "backend_class": "READ_ONLY_BACKEND",
+      "implementation_surface": "village/routes.json",
+      "route": "GET /village/routes.json",
+      "handler": "serveRoutes",
+      "state": "IMPLEMENTED_AND_LOCALLY_VALIDATED",
+      "required_role": "guest_or_admin",
+      "authority_source": "preview_session",
+      "terminal_outcomes": [
+        "PASS_ROUTE_READ"
+      ],
+      "receipt_type": "ROUTE_READ_RECEIPT",
+      "receipt_location": "release_receipts_20260910/ROUTE_TEST_RESULTS.json",
+      "failure_conditions": [
+        "missing_session"
+      ]
+    },
+    {
+      "binding_id": "village-backend-bindings",
+      "backend_class": "READ_ONLY_BACKEND",
+      "implementation_surface": "village/backend-bindings.json",
+      "route": "GET /village/backend-bindings.json",
+      "handler": "serveBackendBindings",
+      "state": "IMPLEMENTED_AND_LOCALLY_VALIDATED",
+      "required_role": "guest_or_admin",
+      "authority_source": "preview_session",
+      "terminal_outcomes": [
+        "PASS_BINDING_READ"
+      ],
+      "receipt_type": "BACKEND_BINDING_READ_RECEIPT",
+      "receipt_location": "release_receipts_20260910/AUTH_TEST_RESULTS.json",
+      "failure_conditions": [
+        "missing_session"
+      ]
+    }
+  ]
+}

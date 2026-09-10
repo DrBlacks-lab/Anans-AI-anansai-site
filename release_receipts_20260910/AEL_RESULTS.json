@@ -1,0 +1,58 @@
+{
+  "schema": "anans.ael.bounded-structural-evaluation.v0.1",
+  "evaluator": "local-deterministic-structural-checks",
+  "frozen_controls": {
+    "evaluator": "registry-route-auth-smoke",
+    "network": "disabled",
+    "public_effects": 0,
+    "rerolls": 0,
+    "retuning": false
+  },
+  "causal_user_preference_proven": false,
+  "candidates": [
+    {
+      "id": "baseline-hardcoded-map",
+      "result": "REJECT",
+      "evidence": {
+        "registry_binding": false,
+        "semantic_destination_source": "index.html literals",
+        "auth_boundary": "server only"
+      }
+    },
+    {
+      "id": "registry-driven-map-and-bindings",
+      "result": "RETAIN",
+      "evidence": {
+        "registry_buildings": 12,
+        "visible_route_coverage": 1,
+        "backend_binding_count": 7,
+        "smoke_checks_passed": 45,
+        "smoke_checks_total": 45
+      }
+    },
+    {
+      "id": "admin-registry-projection",
+      "result": "RETAIN",
+      "evidence": {
+        "role": "admin",
+        "source": "village/registry.json",
+        "private_topology_exposed": false
+      }
+    },
+    {
+      "id": "metaphor-only-building-expansion",
+      "result": "REJECT",
+      "evidence": {
+        "treasury_primitive_in_custody": false,
+        "messenger_primitive_in_custody": false,
+        "recovery_house_primitive_in_custody": false
+      }
+    }
+  ],
+  "terminal": "PASS_BOUNDED_STRUCTURAL_CANDIDATE_RETAINED",
+  "non_claims": [
+    "no causal user preference result",
+    "no external deployment proof",
+    "no live Moltbook or provider effect"
+  ]
+}

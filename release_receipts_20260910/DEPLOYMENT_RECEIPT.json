@@ -1,0 +1,11 @@
+{
+  "terminal": "BLOCKED_REQUIRED_RAILWAY_DEPLOYMENT_ACTUATOR_NOT_IN_CUSTODY",
+  "railway_project": "anans-village-preview",
+  "railway_service": "village-preview",
+  "attempted": false,
+  "railway_configuration_present": false,
+  "railway_cli_present": false,
+  "reason": "No Railway configuration, installed CLI, or authenticated deployment actuator was present in custody.",
+  "public_effect_count": 0,
+  "spend": false
+}

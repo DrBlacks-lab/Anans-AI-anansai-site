@@ -1,0 +1,53 @@
+{
+  "terminal": "PASS_INTERNAL_ROUTE_RESOLUTION",
+  "checks": [
+    {
+      "building_id": "gate",
+      "path": "/about.html",
+      "status": 200,
+      "pass": true
+    },
+    {
+      "building_id": "court",
+      "path": "/governance.html",
+      "status": 200,
+      "pass": true
+    },
+    {
+      "building_id": "knowledge-house",
+      "path": "/about.html",
+      "status": 200,
+      "pass": true
+    },
+    {
+      "building_id": "observatory",
+      "path": "/claim-check.html",
+      "status": 200,
+      "pass": true
+    },
+    {
+      "building_id": "workshop",
+      "path": "/about.html",
+      "status": 200,
+      "pass": true
+    },
+    {
+      "building_id": "market",
+      "path": "/agent-admissibility-review.html",
+      "status": 200,
+      "pass": true
+    },
+    {
+      "building_id": "commons",
+      "path": "/about.html",
+      "status": 200,
+      "pass": true
+    },
+    {
+      "building_id": "farm-resources",
+      "path": "/about.html",
+      "status": 200,
+      "pass": true
+    }
+  ]
+}

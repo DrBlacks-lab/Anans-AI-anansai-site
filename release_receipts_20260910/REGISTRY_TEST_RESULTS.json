@@ -1,0 +1,45 @@
+{
+  "terminal": "PASS_VILLAGE_REGISTRY_INVARIANTS",
+  "checks": [
+    {
+      "check": "unique_building_ids",
+      "pass": true
+    },
+    {
+      "check": "unique_backend_binding_ids",
+      "pass": true
+    },
+    {
+      "check": "unique_primitive_bindings",
+      "pass": true
+    },
+    {
+      "check": "allowed_implementation_states",
+      "pass": true
+    },
+    {
+      "check": "allowed_backend_classes",
+      "pass": true
+    },
+    {
+      "check": "visible_routes_have_registry_buildings",
+      "pass": true
+    },
+    {
+      "check": "operational_bindings_have_surfaces",
+      "pass": true
+    },
+    {
+      "check": "consequential_routes_require_authority",
+      "pass": true
+    },
+    {
+      "check": "receipt_requirements_bound",
+      "pass": true
+    },
+    {
+      "check": "nonlive_functions_fail_closed",
+      "pass": true
+    }
+  ]
+}

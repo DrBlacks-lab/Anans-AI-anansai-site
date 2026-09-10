@@ -1,0 +1,82 @@
+{
+  "schema": "anans.village.routes.v0.1",
+  "routes": [
+    {
+      "building_id": "gate",
+      "path": "/about.html",
+      "method": "GET",
+      "visible": true,
+      "kind": "internal"
+    },
+    {
+      "building_id": "court",
+      "path": "/governance.html",
+      "method": "GET",
+      "visible": true,
+      "kind": "internal"
+    },
+    {
+      "building_id": "knowledge-house",
+      "path": "/about.html#evidence",
+      "method": "GET",
+      "visible": true,
+      "kind": "internal"
+    },
+    {
+      "building_id": "hall-of-records",
+      "path": "https://github.com/Anans-AI/anans-containment-proofs",
+      "method": "GET",
+      "visible": true,
+      "kind": "external"
+    },
+    {
+      "building_id": "observatory",
+      "path": "/claim-check.html",
+      "method": "GET",
+      "visible": true,
+      "kind": "internal"
+    },
+    {
+      "building_id": "workshop",
+      "path": "/about.html#research",
+      "method": "GET",
+      "visible": true,
+      "kind": "internal"
+    },
+    {
+      "building_id": "market",
+      "path": "/agent-admissibility-review.html",
+      "method": "GET",
+      "visible": true,
+      "kind": "internal"
+    },
+    {
+      "building_id": "commons",
+      "path": "/about.html#commons",
+      "method": "GET",
+      "visible": true,
+      "kind": "internal"
+    },
+    {
+      "building_id": "farm-resources",
+      "path": "/about.html#resources",
+      "method": "GET",
+      "visible": true,
+      "kind": "internal"
+    },
+    {
+      "building_id": "guest-house",
+      "path": "/login",
+      "method": "GET",
+      "visible": false,
+      "kind": "internal"
+    },
+    {
+      "building_id": "observatory-data",
+      "path": "/village/registry.json",
+      "method": "GET",
+      "visible": false,
+      "kind": "internal"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "schema": "anans.village.project-charter.v0.1",
+  "mission": "Build and validate a truthful registry-driven restricted Village preview.",
+  "repository": "DrBlacks-lab/Anans-AI-anansai-site",
+  "branch": "aspeak/anans-village-preview-auth-v1",
+  "authority": "FOUNDER_AUTHORIZED_LOCAL_IMPLEMENTATION_AND_RESTRICTED_PREVIEW_VALIDATION",
+  "effect_boundary": ["no merge", "no push", "no public replacement", "no spend", "no external communication"],
+  "completion_requires": ["registry invariants", "backend bindings", "role-aware projections", "hostile auth tests", "route and UI tests", "AEL", "RevLane", "Track X", "restricted Railway health"]
+}

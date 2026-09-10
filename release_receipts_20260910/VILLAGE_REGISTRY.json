@@ -1,0 +1,325 @@
+{
+  "schema": "anans.village.registry.v0.1",
+  "registry_id": "ANANS_VILLAGE_PREVIEW_V0_1",
+  "exposure": "RESTRICTED_PREVIEW",
+  "buildings": [
+    {
+      "building_id": "gate",
+      "public_name": "Gate",
+      "public_purpose": "Orientation and scope",
+      "plain_language_actions": [
+        "learn what ANANS is"
+      ],
+      "primitive_binding": "STATIC_ORIENTATION_PAGE",
+      "backend_class": "READ_ONLY_BACKEND",
+      "backend_routes": [
+        "/about.html"
+      ],
+      "role_visibility": [
+        "guest",
+        "admin"
+      ],
+      "authority_required": false,
+      "receipt_required": true,
+      "receipt_location": "release_receipts_20260910/ROUTE_TEST_RESULTS.json",
+      "health": "PASS_LOCAL_SMOKE",
+      "unresolved_blocker": null,
+      "public_exposure": "RESTRICTED_PREVIEW",
+      "implementation_state": "IMPLEMENTED_AND_LOCALLY_VALIDATED",
+      "non_claims": [
+        "not a public release"
+      ]
+    },
+    {
+      "building_id": "court",
+      "public_name": "Court",
+      "public_purpose": "Governance, rules, and accountability",
+      "plain_language_actions": [
+        "review governance boundaries"
+      ],
+      "primitive_binding": "STATIC_GOVERNANCE_PAGE",
+      "backend_class": "READ_ONLY_BACKEND",
+      "backend_routes": [
+        "/governance.html"
+      ],
+      "role_visibility": [
+        "guest",
+        "admin"
+      ],
+      "authority_required": false,
+      "receipt_required": true,
+      "receipt_location": "release_receipts_20260910/ROUTE_TEST_RESULTS.json",
+      "health": "PASS_LOCAL_SMOKE",
+      "unresolved_blocker": null,
+      "public_exposure": "RESTRICTED_PREVIEW",
+      "implementation_state": "IMPLEMENTED_AND_LOCALLY_VALIDATED",
+      "non_claims": [
+        "does not grant authority"
+      ]
+    },
+    {
+      "building_id": "knowledge-house",
+      "public_name": "Knowledge House",
+      "public_purpose": "Public evidence and research orientation",
+      "plain_language_actions": [
+        "read evidence orientation"
+      ],
+      "primitive_binding": "STATIC_EVIDENCE_SECTION",
+      "backend_class": "READ_ONLY_BACKEND",
+      "backend_routes": [
+        "/about.html#evidence"
+      ],
+      "role_visibility": [
+        "guest",
+        "admin"
+      ],
+      "authority_required": false,
+      "receipt_required": true,
+      "receipt_location": "release_receipts_20260910/ROUTE_TEST_RESULTS.json",
+      "health": "PASS_LOCAL_SMOKE",
+      "unresolved_blocker": null,
+      "public_exposure": "RESTRICTED_PREVIEW",
+      "implementation_state": "IMPLEMENTED_AND_LOCALLY_VALIDATED",
+      "non_claims": [
+        "not a complete knowledge base"
+      ]
+    },
+    {
+      "building_id": "hall-of-records",
+      "public_name": "Hall of Records",
+      "public_purpose": "Released bounded proof",
+      "plain_language_actions": [
+        "inspect released proof"
+      ],
+      "primitive_binding": "EXTERNAL_PROOF_REPOSITORY_LINK",
+      "backend_class": "MANUAL_MEDIATED",
+      "backend_routes": [
+        "https://github.com/Anans-AI/anans-containment-proofs"
+      ],
+      "role_visibility": [
+        "guest",
+        "admin"
+      ],
+      "authority_required": false,
+      "receipt_required": true,
+      "receipt_location": "release_receipts_20260910/VILLAGE_REGISTRY.json",
+      "health": "EXTERNAL_NOT_REVALIDATED",
+      "unresolved_blocker": "external repository status requires separate evidence",
+      "public_exposure": "RESTRICTED_PREVIEW",
+      "implementation_state": "EXTERNAL_CLAIM_AWAITING_RECEIPTS",
+      "non_claims": [
+        "external repository status is not locally proven"
+      ]
+    },
+    {
+      "building_id": "observatory",
+      "public_name": "Observatory",
+      "public_purpose": "Public claim check",
+      "plain_language_actions": [
+        "inspect a bounded claim"
+      ],
+      "primitive_binding": "STATIC_CLAIM_CHECK_PAGE",
+      "backend_class": "READ_ONLY_BACKEND",
+      "backend_routes": [
+        "/claim-check.html"
+      ],
+      "role_visibility": [
+        "guest",
+        "admin"
+      ],
+      "authority_required": false,
+      "receipt_required": true,
+      "receipt_location": "release_receipts_20260910/ROUTE_TEST_RESULTS.json",
+      "health": "PASS_LOCAL_SMOKE",
+      "unresolved_blocker": null,
+      "public_exposure": "RESTRICTED_PREVIEW",
+      "implementation_state": "IMPLEMENTED_AND_LOCALLY_VALIDATED",
+      "non_claims": [
+        "not universal claim validation"
+      ]
+    },
+    {
+      "building_id": "workshop",
+      "public_name": "Workshop",
+      "public_purpose": "Research and build programme",
+      "plain_language_actions": [
+        "review research direction"
+      ],
+      "primitive_binding": "STATIC_RESEARCH_SECTION",
+      "backend_class": "READ_ONLY_BACKEND",
+      "backend_routes": [
+        "/about.html#research"
+      ],
+      "role_visibility": [
+        "guest",
+        "admin"
+      ],
+      "authority_required": false,
+      "receipt_required": true,
+      "receipt_location": "release_receipts_20260910/ROUTE_TEST_RESULTS.json",
+      "health": "PASS_LOCAL_SMOKE",
+      "unresolved_blocker": null,
+      "public_exposure": "RESTRICTED_PREVIEW",
+      "implementation_state": "IMPLEMENTED_AND_LOCALLY_VALIDATED",
+      "non_claims": [
+        "not production supervision"
+      ]
+    },
+    {
+      "building_id": "market",
+      "public_name": "Market",
+      "public_purpose": "Agent admissibility and commercial review",
+      "plain_language_actions": [
+        "review a bounded pilot path"
+      ],
+      "primitive_binding": "STATIC_ADMISSIBILITY_REVIEW_PAGE",
+      "backend_class": "MANUAL_MEDIATED",
+      "backend_routes": [
+        "/agent-admissibility-review.html"
+      ],
+      "role_visibility": [
+        "guest",
+        "admin"
+      ],
+      "authority_required": true,
+      "receipt_required": true,
+      "receipt_location": "release_receipts_20260910/ROUTE_TEST_RESULTS.json",
+      "health": "PASS_READ_ONLY_ROUTE",
+      "unresolved_blocker": "commercial action requires fresh Founder authority",
+      "public_exposure": "RESTRICTED_PREVIEW",
+      "implementation_state": "EXTERNAL_CLAIM_AWAITING_RECEIPTS",
+      "non_claims": [
+        "no purchase or contracting capability"
+      ]
+    },
+    {
+      "building_id": "commons",
+      "public_name": "The Commons",
+      "public_purpose": "Purpose, people, and bounded real-world value",
+      "plain_language_actions": [
+        "review stated purpose"
+      ],
+      "primitive_binding": "STATIC_COMMONS_SECTION",
+      "backend_class": "READ_ONLY_BACKEND",
+      "backend_routes": [
+        "/about.html#commons"
+      ],
+      "role_visibility": [
+        "guest",
+        "admin"
+      ],
+      "authority_required": false,
+      "receipt_required": true,
+      "receipt_location": "release_receipts_20260910/ROUTE_TEST_RESULTS.json",
+      "health": "PASS_LOCAL_SMOKE",
+      "unresolved_blocker": null,
+      "public_exposure": "RESTRICTED_PREVIEW",
+      "implementation_state": "IMPLEMENTED_AND_LOCALLY_VALIDATED",
+      "non_claims": [
+        "shared prosperity is an objective, not a proven outcome"
+      ]
+    },
+    {
+      "building_id": "farm-resources",
+      "public_name": "Farm & Resources",
+      "public_purpose": "Resource governance and bounded allocation",
+      "plain_language_actions": [
+        "review resource boundaries"
+      ],
+      "primitive_binding": "STATIC_RESOURCE_BOUNDARY_SECTION",
+      "backend_class": "SPECIFIED_NOT_BUILT",
+      "backend_routes": [
+        "/about.html#resources"
+      ],
+      "role_visibility": [
+        "guest",
+        "admin"
+      ],
+      "authority_required": true,
+      "receipt_required": true,
+      "receipt_location": "release_receipts_20260910/VILLAGE_REGISTRY.json",
+      "health": "CONTENT_ONLY",
+      "unresolved_blocker": "no allocation actuator is implemented",
+      "public_exposure": "RESTRICTED_PREVIEW",
+      "implementation_state": "SPECIFIED_NOT_BUILT",
+      "non_claims": [
+        "no allocation or payment route"
+      ]
+    },
+    {
+      "building_id": "guest-house",
+      "public_name": "Guest House",
+      "public_purpose": "Restricted preview access",
+      "plain_language_actions": [
+        "sign in to the preview"
+      ],
+      "primitive_binding": "SIGNED_PREVIEW_SESSION_LOGIN",
+      "backend_class": "LIVE_BACKEND",
+      "backend_routes": [
+        "/login"
+      ],
+      "role_visibility": [
+        "anonymous"
+      ],
+      "authority_required": false,
+      "receipt_required": true,
+      "receipt_location": "release_receipts_20260910/AUTH_TEST_RESULTS.json",
+      "health": "PASS_LOCAL_HOSTILE_TESTS",
+      "unresolved_blocker": null,
+      "public_exposure": "RESTRICTED_PREVIEW",
+      "implementation_state": "IMPLEMENTED_AND_LOCALLY_VALIDATED",
+      "non_claims": [
+        "no public contact or effect route"
+      ]
+    },
+    {
+      "building_id": "laboratory",
+      "public_name": "Laboratory",
+      "public_purpose": "Controlled experiments",
+      "plain_language_actions": [],
+      "primitive_binding": "EXPERIMENT_AUTHORITY_GATE",
+      "backend_class": "WITHHELD_BY_AUTHORITY",
+      "backend_routes": [],
+      "role_visibility": [
+        "admin"
+      ],
+      "authority_required": true,
+      "receipt_required": true,
+      "receipt_location": "release_receipts_20260910/VILLAGE_REGISTRY.json",
+      "health": "WITHHELD",
+      "unresolved_blocker": "experiment authority and implementation are absent",
+      "public_exposure": "WITHHELD",
+      "implementation_state": "WITHHELD_BY_AUTHORITY",
+      "non_claims": [
+        "no experiment endpoint is exposed"
+      ]
+    },
+    {
+      "building_id": "observatory-data",
+      "public_name": "Observatory Data",
+      "public_purpose": "Machine-readable preview registry",
+      "plain_language_actions": [
+        "inspect registry metadata"
+      ],
+      "primitive_binding": "AUTHENTICATED_REGISTRY_ENDPOINT",
+      "backend_class": "READ_ONLY_BACKEND",
+      "backend_routes": [
+        "/village/registry.json"
+      ],
+      "role_visibility": [
+        "guest",
+        "admin"
+      ],
+      "authority_required": false,
+      "receipt_required": true,
+      "receipt_location": "release_receipts_20260910/AUTH_TEST_RESULTS.json",
+      "health": "PASS_LOCAL_SMOKE",
+      "unresolved_blocker": null,
+      "public_exposure": "RESTRICTED_PREVIEW",
+      "implementation_state": "IMPLEMENTED_AND_LOCALLY_VALIDATED",
+      "non_claims": [
+        "metadata is not execution authority"
+      ]
+    }
+  ]
+}
