@@ -3,7 +3,7 @@
 html,body{margin:0;min-width:100%;min-height:100%;background:var(--bg);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 body{overflow-x:hidden;color:var(--ink)}
 a{color:inherit}
-.stage{position:relative;min-height:100svh;isolation:isolate;overflow:hidden;background:var(--bg)}
+.stage{position:relative;min-height:100svh;isolation:isolate;overflow:hidden;background:var(--bg) url("assets/anans-village-bg.svg") center/cover no-repeat}
 .village-art{position:absolute;z-index:-3;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 52%;user-select:none;-webkit-user-drag:none}
 .shade{position:absolute;z-index:-2;inset:0;background:linear-gradient(90deg,rgba(3,10,8,.86) 0%,rgba(3,10,8,.42) 24%,rgba(3,10,8,.10) 55%,rgba(3,10,8,.34) 100%),linear-gradient(0deg,rgba(3,10,8,.76) 0%,transparent 22%,rgba(3,10,8,.38) 100%);pointer-events:none}
 .topbar{position:relative;z-index:10;display:flex;align-items:flex-start;justify-content:space-between;gap:2rem;padding:clamp(1rem,2.3vw,2rem) clamp(1rem,3vw,3rem)}
