@@ -1,15 +1,18 @@
 import http from "node:http";
 import { readFile, stat } from "node:fs/promises";
 import { extname, join, normalize, resolve } from "node:path";
-import { createHmac, timingSafeEqual, scryptSync } from "node:crypto";
+import { createHmac, timingSafeEqual, scryptSync, randomUUID } from "node:crypto";
 
 const PORT = Number(process.env.PORT || 3000);
 const ROOT = resolve(process.cwd());
 const SESSION_NAME = "anans_preview_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 8;
+const WINDOW_MS = 10 * 60 * 1000;
+const LOCK_MS = 15 * 60 * 1000;
+const MAX_FAILURES = 5;
+const failures = new Map();
 
-const required = ["SESSION_SECRET", "ADMIN_USERNAME", "ADMIN_PASSWORD_SCRYPT"];
-for (const key of required) {
+for (const key of ["SESSION_SECRET", "ADMIN_USERNAME", "ADMIN_PASSWORD_SCRYPT"]) {
   if (!process.env[key]) {
     console.error(`Missing required environment variable: ${key}`);
     process.exit(1);
@@ -26,25 +29,34 @@ function parseGuests() {
   }
 }
 const GUESTS = parseGuests();
+const ADMIN_SESSION_VERSION = Number(process.env.ADMIN_SESSION_VERSION || "1");
 
-function b64url(input) {
-  return Buffer.from(input).toString("base64url");
+const safeUser = value => String(value || "").trim().toLowerCase().slice(0, 80);
+const b64url = input => Buffer.from(input).toString("base64url");
+const sign = value => createHmac("sha256", process.env.SESSION_SECRET).update(value).digest("base64url");
+function isExpired(iso) {
+  if (!iso) return false;
+  const t = Date.parse(iso);
+  return !Number.isFinite(t) || t <= Date.now();
 }
-function sign(value) {
-  return createHmac("sha256", process.env.SESSION_SECRET).update(value).digest("base64url");
+function guestRecord(username) {
+  const g = GUESTS[username];
+  if (!g || typeof g !== "object" || g.enabled === false || isExpired(g.expires_at)) return null;
+  return g;
 }
-function makeSession(username, role) {
-  const payload = b64url(JSON.stringify({
-    sub: username,
-    role,
-    exp: Math.floor(Date.now() / 1000) + SESSION_TTL_SECONDS
-  }));
+function makeSession(username, role, version, absoluteExpiry = null) {
+  const now = Math.floor(Date.now() / 1000);
+  let exp = now + SESSION_TTL_SECONDS;
+  if (absoluteExpiry) {
+    const guestExp = Math.floor(Date.parse(absoluteExpiry) / 1000);
+    if (Number.isFinite(guestExp)) exp = Math.min(exp, guestExp);
+  }
+  const payload = b64url(JSON.stringify({ sub: username, role, ver: version, sid: randomUUID(), exp }));
   return `${payload}.${sign(payload)}`;
 }
 function readSession(req) {
   const raw = req.headers.cookie || "";
-  const pairs = raw.split(";").map(x => x.trim());
-  const entry = pairs.find(x => x.startsWith(`${SESSION_NAME}=`));
+  const entry = raw.split(";").map(x => x.trim()).find(x => x.startsWith(`${SESSION_NAME}=`));
   if (!entry) return null;
   const value = decodeURIComponent(entry.slice(SESSION_NAME.length + 1));
   const [payload, signature] = value.split(".");
@@ -55,37 +67,71 @@ function readSession(req) {
   try {
     const data = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
     if (!data.exp || data.exp < Math.floor(Date.now() / 1000)) return null;
-    if (!["admin", "guest"].includes(data.role)) return null;
-    return data;
-  } catch {
+    if (data.role === "admin") {
+      if (data.sub !== safeUser(process.env.ADMIN_USERNAME) || Number(data.ver) !== ADMIN_SESSION_VERSION) return null;
+      return data;
+    }
+    if (data.role === "guest") {
+      const g = guestRecord(data.sub);
+      if (!g || Number(data.ver) !== Number(g.session_version || 1)) return null;
+      return data;
+    }
     return null;
-  }
+  } catch { return null; }
 }
 
 function verifyScrypt(password, encoded) {
   if (typeof encoded !== "string" || !encoded.includes("$")) return false;
   const [saltHex, expectedHex] = encoded.split("$", 2);
   try {
-    const actual = scryptSync(password, Buffer.from(saltHex, "hex"), 64, { N: 16384, r: 8, p: 1 });
+    const actual = scryptSync(String(password), Buffer.from(saltHex, "hex"), 64, { N: 16384, r: 8, p: 1 });
     const expected = Buffer.from(expectedHex, "hex");
     return actual.length === expected.length && timingSafeEqual(actual, expected);
-  } catch {
-    return false;
-  }
+  } catch { return false; }
 }
 
+function clientIp(req) {
+  const forwarded = String(req.headers["x-forwarded-for"] || "").split(",")[0].trim();
+  return (forwarded || req.socket.remoteAddress || "unknown").slice(0, 96);
+}
+const authKey = (req, username) => `${clientIp(req)}|${safeUser(username)}`;
+function rateState(key) {
+  const now = Date.now();
+  const state = failures.get(key);
+  if (!state) return { count: 0, first: now, lockedUntil: 0 };
+  if (state.lockedUntil > now) return state;
+  if (now - state.first > WINDOW_MS) {
+    failures.delete(key);
+    return { count: 0, first: now, lockedUntil: 0 };
+  }
+  return state;
+}
+function recordFailure(key) {
+  const now = Date.now();
+  const state = rateState(key);
+  state.count += 1;
+  if (state.count >= MAX_FAILURES) state.lockedUntil = now + LOCK_MS;
+  failures.set(key, state);
+}
+const clearFailures = key => failures.delete(key);
+
+const CSP = "default-src 'none'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data:; style-src 'self'; script-src 'none'; connect-src 'none'; font-src 'none'; media-src 'none'; manifest-src 'none'; upgrade-insecure-requests";
 function commonHeaders(extra = {}) {
   return {
+    "Content-Security-Policy": CSP,
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "DENY",
     "Referrer-Policy": "no-referrer",
-    "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=()",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
+    "Strict-Transport-Security": "max-age=31536000",
     "Cache-Control": "no-store, private",
+    "X-Robots-Tag": "noindex, nofollow, noarchive",
     ...extra
   };
 }
-function send(res, status, body, headers = {}) {
+function send(res, status, body, headers = {}, headOnly = false) {
   res.writeHead(status, commonHeaders(headers));
+  if (headOnly) return res.end();
   res.end(body);
 }
 function redirect(res, location, cookie = null) {
@@ -93,85 +139,73 @@ function redirect(res, location, cookie = null) {
   if (cookie) headers["Set-Cookie"] = cookie;
   send(res, 303, "", headers);
 }
-function sessionCookie(value) {
-  return `${SESSION_NAME}=${encodeURIComponent(value)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_TTL_SECONDS}`;
-}
-function clearCookie() {
-  return `${SESSION_NAME}=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`;
-}
+const sessionCookie = (value, maxAge = SESSION_TTL_SECONDS) => `${SESSION_NAME}=${encodeURIComponent(value)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${Math.max(0, maxAge)}`;
+const clearCookie = () => sessionCookie("", 0);
+const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
 
-const loginPage = (error = "") => `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex,nofollow,noarchive">
-<title>ANANS Village — Restricted Preview</title>
-<style>
-:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#07110d;color:#f6f0df;font-family:system-ui,sans-serif}
-main{width:min(430px,calc(100% - 2rem));padding:2rem;border:1px solid #6f5b2d;background:#0d1914;box-shadow:0 2rem 5rem #0008}
-h1{margin:.2rem 0 .6rem;font-size:1.8rem}p{color:#bec9c1;line-height:1.55}.mark{letter-spacing:.18em;font-weight:800;color:#e7bb58}
-label{display:block;margin:1rem 0 .35rem}input{width:100%;padding:.8rem;border:1px solid #637066;background:#07110d;color:#fff;border-radius:.35rem}
-button{width:100%;margin-top:1.2rem;padding:.85rem;border:1px solid #e7bb58;background:#e7bb58;color:#111;font-weight:800;border-radius:.35rem;cursor:pointer}
-.error{border-left:3px solid #d46a58;padding:.65rem .8rem;background:#301512;color:#ffd7cf}.small{font-size:.82rem}
-</style></head><body><main>
-<div class="mark">ANANS</div><h1>Restricted village preview</h1>
-<p>Testing surface. Access is limited to the Founder/admin account and explicitly provisioned guest accounts.</p>
-${error ? `<p class="error">${error}</p>` : ""}
-<form method="post" action="/login" autocomplete="on">
-<label for="username">Username</label><input id="username" name="username" required autocomplete="username">
-<label for="password">Password</label><input id="password" name="password" type="password" required autocomplete="current-password">
-<button type="submit">Enter restricted preview</button>
-</form>
-<p class="small">Authentication does not grant deployment, publication, spending, or other consequential authority.</p>
-</main></body></html>`;
+const loginPage = (error = "") => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><title>ANANS Village — Restricted Preview</title><link rel="stylesheet" href="/auth.css"></head><body><main><div class="mark">ANANS</div><h1>Restricted village preview</h1><p>Testing surface. Access is limited to the Founder/admin account and explicitly provisioned guest accounts.</p>${error ? `<p class="error">${esc(error)}</p>` : ""}<form method="post" action="/login" autocomplete="on"><label for="username">Username</label><input id="username" name="username" required autocomplete="username" maxlength="80"><label for="password">Password</label><input id="password" name="password" type="password" required autocomplete="current-password" maxlength="256"><button type="submit">Enter restricted preview</button></form><p class="small">Authentication grants preview access only. It does not grant deployment, publication, spending, or other consequential authority.</p></main></body></html>`;
 
-const deniedPage = `<!doctype html><meta charset="utf-8"><meta name="robots" content="noindex,nofollow">
-<title>Forbidden</title><body style="font-family:system-ui;background:#0b1511;color:#eee;padding:2rem">
-<h1>403 — Admin only</h1><p>This function is restricted to the admin role.</p><p><a href="/" style="color:#f1c65e">Return to preview</a></p></body>`;
+function adminPage(session) {
+  const rows = Object.entries(GUESTS).map(([name, g]) => {
+    const active = Boolean(guestRecord(name));
+    return `<li><strong>${esc(name)}</strong> · <span class="${active ? "ok" : "hold"}">${active ? "enabled" : "disabled/expired"}</span><br><span class="meta">expires: ${esc(g?.expires_at || "not set")} · session_version: ${esc(g?.session_version || 1)}</span></li>`;
+  }).join("") || "<li>No guest accounts configured.</li>";
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>ANANS Preview Admin</title><link rel="stylesheet" href="/auth.css"></head><body><main><div class="mark">ANANS</div><h1>Preview administration</h1><p>Signed in as <strong>${esc(session.sub)}</strong>. This surface exposes preview-account state only.</p><ul class="guest-list">${rows}</ul><p class="small">Guest provisioning remains explicit and configuration-backed. There is no self-registration. Incrementing a guest's <code>session_version</code>, disabling it, or expiring it invalidates outstanding sessions on the next request.</p><div class="row"><a class="button" href="/">Open village preview</a><a class="button" href="/logout">Sign out</a></div></main></body></html>`;
+}
 
 const MIME = {
-  ".html": "text/html; charset=utf-8",
-  ".css": "text/css; charset=utf-8",
-  ".svg": "image/svg+xml",
-  ".png": "image/png",
-  ".webp": "image/webp",
-  ".jpg": "image/jpeg",
-  ".jpeg": "image/jpeg",
-  ".ico": "image/x-icon",
-  ".xml": "application/xml; charset=utf-8",
-  ".txt": "text/plain; charset=utf-8"
+  ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".svg": "image/svg+xml",
+  ".png": "image/png", ".webp": "image/webp", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
+  ".ico": "image/x-icon", ".xml": "application/xml; charset=utf-8", ".txt": "text/plain; charset=utf-8"
 };
-const DENY_FILES = new Set(["package.json", "preview-server.mjs", "CNAME", ".nojekyll"]);
+const DENY_FILES = new Set(["package.json", "package-lock.json", "preview-server.mjs", "CNAME", ".nojekyll"]);
 
-async function serveStatic(req, res) {
-  let pathname;
-  try {
-    pathname = decodeURIComponent(new URL(req.url, "http://preview.local").pathname);
-  } catch {
-    return send(res, 400, "Bad request", { "Content-Type": "text/plain; charset=utf-8" });
-  }
-  if (pathname === "/") pathname = "/index.html";
-  const clean = normalize(pathname).replace(/^(\.\.(\/|\\|$))+/, "");
-  const relative = clean.replace(/^[/\\]+/, "");
-  if (!relative || DENY_FILES.has(relative) || relative.startsWith(".git") || relative.includes("..")) {
-    return send(res, 404, "Not found", { "Content-Type": "text/plain; charset=utf-8" });
+async function serveNamedFile(res, relative, headOnly = false) {
+  if (relative === "assets/anans-village.webp") {
+    try {
+      const parts = await Promise.all([0,1,2,3].map(i => readFile(resolve(join(ROOT, `assets/anans-village.webp.b64.part-${String(i).padStart(2, "0")}`)), "utf8")));
+      const data = Buffer.from(parts.join("").trim(), "base64");
+      if (data.length < 100000) throw new Error("image decode failed");
+      return send(res, 200, data, { "Content-Type": "image/webp", "Content-Length": String(data.length) }, headOnly);
+    } catch {
+      return send(res, 500, "Preview image unavailable", { "Content-Type": "text/plain; charset=utf-8" }, headOnly);
+    }
   }
   const filePath = resolve(join(ROOT, relative));
-  if (!filePath.startsWith(ROOT + "/") && filePath !== ROOT) {
-    return send(res, 404, "Not found", { "Content-Type": "text/plain; charset=utf-8" });
-  }
+  if (!filePath.startsWith(ROOT + "/") && filePath !== ROOT) return send(res, 404, "Not found", { "Content-Type": "text/plain; charset=utf-8" }, headOnly);
   const ext = extname(filePath).toLowerCase();
-  if (!MIME[ext]) return send(res, 404, "Not found", { "Content-Type": "text/plain; charset=utf-8" });
+  if (!MIME[ext]) return send(res, 404, "Not found", { "Content-Type": "text/plain; charset=utf-8" }, headOnly);
   try {
     const info = await stat(filePath);
     if (!info.isFile()) throw new Error("not file");
     const data = await readFile(filePath);
-    send(res, 200, data, {
-      "Content-Type": MIME[ext],
-      "Content-Length": String(data.length),
-      "X-Robots-Tag": "noindex, nofollow, noarchive"
-    });
+    return send(res, 200, data, { "Content-Type": MIME[ext], "Content-Length": String(data.length) }, headOnly);
   } catch {
-    send(res, 404, "Not found", { "Content-Type": "text/plain; charset=utf-8" });
+    return send(res, 404, "Not found", { "Content-Type": "text/plain; charset=utf-8" }, headOnly);
   }
+}
+
+async function serveStatic(req, res, session) {
+  const headOnly = req.method === "HEAD";
+  if (!headOnly && req.method !== "GET") return send(res, 405, "Method not allowed", { Allow: "GET, HEAD", "Content-Type": "text/plain; charset=utf-8" });
+  let pathname;
+  try { pathname = decodeURIComponent(new URL(req.url, "http://preview.local").pathname); }
+  catch { return send(res, 400, "Bad request", { "Content-Type": "text/plain; charset=utf-8" }); }
+  if (pathname === "/") pathname = "/index.html";
+  const clean = normalize(pathname).replace(/^(\.\.(\/|\\|$))+/, "");
+  const relative = clean.replace(/^[/\\]+/, "");
+  if (!relative || DENY_FILES.has(relative) || relative.startsWith(".git") || relative.includes("..")) return send(res, 404, "Not found", { "Content-Type": "text/plain; charset=utf-8" }, headOnly);
+  if (relative === "index.html") {
+    try {
+      const raw = await readFile(resolve(join(ROOT, "index.html")), "utf8");
+      const adminNav = session.role === "admin" ? '<a class="admin-nav" href="/admin">Admin</a>' : "";
+      const html = raw.replace("<!--ADMIN_NAV-->", adminNav);
+      return send(res, 200, html, { "Content-Type": "text/html; charset=utf-8", "Content-Length": String(Buffer.byteLength(html)) }, headOnly);
+    } catch {
+      return send(res, 500, "Preview unavailable", { "Content-Type": "text/plain; charset=utf-8" }, headOnly);
+    }
+  }
+  return serveNamedFile(res, relative, headOnly);
 }
 
 async function readForm(req) {
@@ -180,15 +214,9 @@ async function readForm(req) {
     req.setEncoding("utf8");
     req.on("data", chunk => {
       body += chunk;
-      if (body.length > 8192) {
-        rejectForm(new Error("form too large"));
-        req.destroy();
-      }
+      if (body.length > 8192) { rejectForm(new Error("form too large")); req.destroy(); }
     });
-    req.on("end", () => {
-      const params = new URLSearchParams(body);
-      resolveForm(Object.fromEntries(params.entries()));
-    });
+    req.on("end", () => resolveForm(Object.fromEntries(new URLSearchParams(body).entries())));
     req.on("error", rejectForm);
   });
 }
@@ -196,59 +224,56 @@ async function readForm(req) {
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, "http://preview.local");
   const session = readSession(req);
-
-  if (url.pathname === "/health") {
-    return send(res, 200, "ok", { "Content-Type": "text/plain; charset=utf-8" });
-  }
-  if (url.pathname === "/robots.txt") {
-    return send(res, 200, "User-agent: *\nDisallow: /\n", { "Content-Type": "text/plain; charset=utf-8" });
-  }
-  if (url.pathname === "/login" && req.method === "GET") {
+  const headOnly = req.method === "HEAD";
+  if (url.pathname === "/health") return send(res, 200, "ok", { "Content-Type": "text/plain; charset=utf-8" }, headOnly);
+  if (url.pathname === "/robots.txt") return send(res, 200, "User-agent: *\nDisallow: /\n", { "Content-Type": "text/plain; charset=utf-8" }, headOnly);
+  if (url.pathname === "/auth.css") return serveNamedFile(res, "auth.css", headOnly);
+  if (url.pathname === "/login" && (req.method === "GET" || req.method === "HEAD")) {
     if (session) return redirect(res, "/");
-    return send(res, 200, loginPage(), { "Content-Type": "text/html; charset=utf-8", "X-Robots-Tag": "noindex, nofollow, noarchive" });
+    return send(res, 200, loginPage(), { "Content-Type": "text/html; charset=utf-8" }, headOnly);
   }
   if (url.pathname === "/login" && req.method === "POST") {
     try {
       const { username = "", password = "" } = await readForm(req);
+      const user = safeUser(username);
+      const key = authKey(req, user);
+      const state = rateState(key);
+      if (state.lockedUntil > Date.now()) {
+        return send(res, 429, loginPage("Too many failed attempts. Try again later."), { "Content-Type": "text/html; charset=utf-8", "Retry-After": String(Math.ceil((state.lockedUntil - Date.now()) / 1000)) });
+      }
       let role = null;
-      if (username === process.env.ADMIN_USERNAME && verifyScrypt(password, process.env.ADMIN_PASSWORD_SCRYPT)) {
-        role = "admin";
-      } else if (Object.hasOwn(GUESTS, username) && verifyScrypt(password, GUESTS[username]?.password_scrypt)) {
-        role = "guest";
+      let version = 1;
+      let expiresAt = null;
+      if (user === safeUser(process.env.ADMIN_USERNAME) && verifyScrypt(password, process.env.ADMIN_PASSWORD_SCRYPT)) {
+        role = "admin"; version = ADMIN_SESSION_VERSION;
+      } else {
+        const g = guestRecord(user);
+        if (g && verifyScrypt(password, g.password_scrypt)) {
+          role = "guest"; version = Number(g.session_version || 1); expiresAt = g.expires_at || null;
+        }
       }
       if (!role) {
-        return send(res, 401, loginPage("Invalid username or password."), {
-          "Content-Type": "text/html; charset=utf-8",
-          "X-Robots-Tag": "noindex, nofollow, noarchive"
-        });
+        recordFailure(key);
+        return send(res, 401, loginPage("Invalid username or password."), { "Content-Type": "text/html; charset=utf-8" });
       }
-      return redirect(res, "/", sessionCookie(makeSession(username, role)));
+      clearFailures(key);
+      return redirect(res, "/", sessionCookie(makeSession(user, role, version, expiresAt)));
     } catch {
       return send(res, 400, loginPage("Unable to process sign-in."), { "Content-Type": "text/html; charset=utf-8" });
     }
   }
-  if (url.pathname === "/logout") {
-    return redirect(res, "/login", clearCookie());
-  }
+  if (url.pathname === "/logout") return redirect(res, "/login", clearCookie());
   if (url.pathname === "/auth/status") {
     if (!session) return send(res, 401, JSON.stringify({ authenticated: false }), { "Content-Type": "application/json" });
     return send(res, 200, JSON.stringify({ authenticated: true, role: session.role, username: session.sub }), { "Content-Type": "application/json" });
   }
   if (url.pathname === "/admin") {
     if (!session) return redirect(res, "/login");
-    if (session.role !== "admin") return send(res, 403, deniedPage, { "Content-Type": "text/html; charset=utf-8" });
-    const guestNames = Object.keys(GUESTS);
-    const body = `<!doctype html><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><title>ANANS Preview Admin</title>
-<body style="font-family:system-ui;background:#0b1511;color:#eee;padding:2rem;max-width:60rem;margin:auto">
-<h1>Preview administration</h1><p>Role: admin. Current guest accounts: <strong>${guestNames.length}</strong>.</p>
-<ul>${guestNames.map(name => `<li>${name.replace(/[<>&"]/g, "")}</li>`).join("") || "<li>None provisioned</li>"}</ul>
-<p>Guest provisioning is configuration-backed and requires an explicit account update; no self-registration is enabled.</p>
-<p><a href="/" style="color:#f1c65e">Preview</a> · <a href="/logout" style="color:#f1c65e">Sign out</a></p></body>`;
-    return send(res, 200, body, { "Content-Type": "text/html; charset=utf-8" });
+    if (session.role !== "admin") return send(res, 403, "Forbidden", { "Content-Type": "text/plain; charset=utf-8" });
+    return send(res, 200, adminPage(session), { "Content-Type": "text/html; charset=utf-8" });
   }
-
   if (!session) return redirect(res, "/login");
-  return serveStatic(req, res);
+  return serveStatic(req, res, session);
 });
 
 server.listen(PORT, "0.0.0.0", () => {
