@@ -116,6 +116,22 @@ try {
   uiResults.push({ check: "approved_visual_intrinsic_dimensions", pass: index.body.includes('width="1536" height="1024"') });
   const asset = await request("/assets/anans-village-bg.svg", { headers: guestCookie });
   uiResults.push({ check: "static_asset_served_on_windows", pass: asset.status === 200 && asset.headers["content-type"]?.includes("image/svg+xml") });
+  const primaryMatch = index.body.match(/<img class="village-art" src="([^"]+)"/);
+  let primaryAssetIntegrity = false;
+  if (primaryMatch) {
+    const rel = primaryMatch[1].replace(/^\/+/, "");
+    const bytes = await readFile(join(root, rel));
+    if (rel.endsWith(".webp")) primaryAssetIntegrity = bytes.length >= 20 && bytes.subarray(0,4).toString("ascii") === "RIFF" && bytes.subarray(8,12).toString("ascii") === "WEBP" && bytes.readUInt32LE(4) + 8 === bytes.length;
+    else if (rel.endsWith(".svg")) {
+      const text = bytes.toString("utf8");
+      const embedded = text.match(/data:image\/webp;base64,([A-Za-z0-9+/=]+)/);
+      if (text.includes("<svg") && embedded) {
+        const data = Buffer.from(embedded[1], "base64");
+        primaryAssetIntegrity = data.length >= 20 && data.subarray(0,4).toString("ascii") === "RIFF" && data.subarray(8,12).toString("ascii") === "WEBP" && data.readUInt32LE(4) + 8 === data.length;
+      }
+    }
+  }
+  uiResults.push({ check: "primary_background_asset_integrity", pass: primaryAssetIntegrity });
   const landingCss = await readFile(join(root, "landing.css"), "utf8");
   const styleDirective = await readFile(join(root, "STYLE_RESOLUTION_DIRECTIVE.md"), "utf8");
   uiResults.push({ check: "one_primary_village_visual", pass: (index.body.match(/class="village-art"/g) || []).length === 1 });
@@ -206,7 +222,7 @@ await writeFile(join(receiptDir, "TERMINAL_RECEIPT.json"), JSON.stringify({ term
 await writeFile(join(receiptDir, "REVLANE_REPORT.md"), `# RevLane report\n\nThe corrected lane treats the village as a semantic integration problem: registry records are the source for visible destinations and authenticated read-only metadata, while authority and implementation states remain explicit.\n\n- Retained: existing Node server, signed session model, static pages, approved single-village visual.\n- Corrected: hardcoded map entries, absent backend classifications, missing role-aware admin projection, missing machine-readable bindings, malformed-cookie exception path, Windows path containment, and the incomplete hostile auth suite.\n- Rejected: metaphor-only Treasury, Messenger, and Recovery House entries without primitives.\n- Unresolved P0/P1 local defects: none after ${allChecks.length}/${allChecks.length} checks.\n- Not claimed: public release, Railway validation, independent-browser validation, causal user preference, payment, contracting, or autonomous authority.\n`);
 await writeFile(join(receiptDir, "TRACK_X_REPORT.md"), `# Track X report\n\nTrack X reused the existing runtime and testable boundaries. No parallel framework or provider integration was introduced. The candidate was evaluated with deterministic local structural controls: route coverage, registry invariants, explicit backend classes, role-aware projection, hostile auth checks, traversal rejection, and zero public effects.\n\nNo obvious higher-value lawful local change remains. The next material step requires Railway deployment custody.\n\nTerminal: ${aelResults.terminal}\n`);
 await writeFile(join(receiptDir, "RUN_REPORT.md"), `# ANANS Village semantic backend sprint\n\nDate: 2026-09-10\nBranch: aspeak/anans-village-preview-auth-v1\nBase revision: 1c68ad54ac4981ce1505dc76882a3b35d3894a54\nScope: restricted preview only; no merge, push, publication, spend, or production mutation.\n\n## Terminal\n\`${terminal}\`\n\nBlocked gates: \`${browserLayoutReceipt.terminal}\`; \`${deploymentReceipt.terminal}\`.\n\n## Validation\n- Registry checks: ${registryResults.filter(item => item.pass).length}/${registryResults.length} passed.\n- Authentication checks: ${authResults.filter(item => item.pass).length}/${authResults.length} passed.\n- Internal route checks: ${routeResults.filter(item => item.pass).length}/${routeResults.length} passed.\n- UI static/runtime checks: ${uiResults.filter(item => item.pass).length}/${uiResults.length} passed.\n- Desktop/tablet/mobile browser layouts: not verified; the browser helper failed twice and no local headless browser binary was present.\n- AEL: ${aelResults.terminal}; structural only, causal user preference not established.\n- Deployment: not attempted; Railway configuration, CLI, and authenticated actuator were not in custody.\n- Public effects: 0. Authority delta: 0.\n\n## Evidence boundary\nThe result proves local implementation and local validation in this checkout. It does not prove browser layout behavior, Railway state, public availability, external provider behavior, or commercial lift.\n`);
-const names = (await readdir(receiptDir)).filter(name => name !== "HASH_MANIFEST.json").sort();
+const names = (await readdir(receiptDir, { withFileTypes: true })).filter(entry => entry.isFile() && entry.name !== "HASH_MANIFEST.json").map(entry => entry.name).sort();
 const manifest = { schema: "anans.hash-manifest.v0.1", files: [] };
 for (const name of names) manifest.files.push({ path: name, sha256: await sha256(join(receiptDir, name)) });
 await writeFile(join(receiptDir, "HASH_MANIFEST.json"), JSON.stringify(manifest, null, 2));
