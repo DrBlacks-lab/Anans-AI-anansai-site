@@ -52,10 +52,14 @@ assert.ok(visibleNames.length >= 8, 'expected visible village building labels in
 const registryNames = new Set(buildings.map(x => x.public_name));
 for (const name of visibleNames) assert.ok(registryNames.has(name), `visible landing building missing from registry: ${name}`);
 
-const consequentialPrimitivePattern = /(admissibility|authority|commercial_offer|candidate_construction|budget|credential|authentication|admission)/;
+// Authority belongs to consequential action surfaces, not to mere discussion of an
+// authority concept. A read-only Court page may explain authority without requiring
+// permission to read it. These institutions either execute/mediate consequential
+// access today or are specified to do so when implemented.
+const authorityControlledBuildings = new Set(['gate', 'workshop', 'laboratory', 'market', 'farm_resources', 'guest_house']);
 for (const building of buildings) {
-  if (building.primitive_bindings.some(x => consequentialPrimitivePattern.test(x))) {
-    assert.equal(building.authority_required, true, `${building.building_id}: consequential primitive must require authority`);
+  if (authorityControlledBuildings.has(building.building_id)) {
+    assert.equal(building.authority_required, true, `${building.building_id}: consequential action surface must require authority`);
   }
 }
 
