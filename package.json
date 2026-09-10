@@ -4,5 +4,5 @@
   "private": true,
   "type": "module",
   "engines": {"node": ">=20 <23"},
-  "scripts": {"start": "node preview-server.mjs", "check": "node --check preview-server.mjs"}
+  "scripts": {"start": "node materialize-image.mjs && node preview-server.mjs", "check": "node --check materialize-image.mjs && node --check preview-server.mjs"}
 }
