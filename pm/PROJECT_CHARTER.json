@@ -1,0 +1,77 @@
+{
+  "schema_version": "0.1",
+  "project": "ANANS Village",
+  "site": "anansai.org",
+  "management_state": "ACTIVE",
+  "repository": "DrBlacks-lab/Anans-AI-anansai-site",
+  "working_branch": "aspeak/anans-village-preview-auth-v1",
+  "public_main_is_release_target": false,
+  "objective": "Build a human-readable civic ontology over real ANANS primitives, tools, roles, authority boundaries, evidence and backend functions without creating a parallel governance or authority system.",
+  "semantic_contract": [
+    "RECOGNIZABLE_BUILDING",
+    "HUMAN_FUNCTION",
+    "ANANS_PRIMITIVE",
+    "TOOL_OR_SERVICE",
+    "BACKEND_FUNCTION",
+    "AUTHORITY_CHECK",
+    "RECEIPT_OR_STATUS"
+  ],
+  "authority": {
+    "founder_controls": [
+      "ultimate purpose",
+      "consequential authority",
+      "new spend",
+      "public publication",
+      "production effects",
+      "trade-secret disclosure",
+      "irreversible external commitments",
+      "final promotion"
+    ],
+    "pm_may_execute_without_reapproval": [
+      "reversible preview-only implementation",
+      "test and regression repair",
+      "registry/schema reconciliation",
+      "accessibility and responsive repair",
+      "bounded auth hardening",
+      "preview-only Railway redeployment",
+      "AEL candidate generation and local comparison",
+      "RevLane and Track X analysis"
+    ],
+    "pm_is_governance_authority": false
+  },
+  "visual_contract": {
+    "reference_resolution": "1536x1024",
+    "village_map_is_only_landing_visual": true,
+    "semantic_controls_are_html_or_accessible_bindings": true,
+    "quote_attribution": "Garth Noel",
+    "tiled_transport_forbidden": true,
+    "public_promotion_authorized": false
+  },
+  "build_order": [
+    "canonical village registry",
+    "existing primitive reconciliation",
+    "backend binding registry",
+    "role and authority projection",
+    "receipt and status projection",
+    "functional routes",
+    "admin and guest lifecycle hardening",
+    "high-resolution responsive visual delivery",
+    "AEL usability/comprehension assays",
+    "final RevLane and Track X",
+    "Founder release decision"
+  ],
+  "required_terminal_states": [
+    "PASS",
+    "PARTIAL",
+    "HOLD",
+    "BLOCKED",
+    "REJECT"
+  ],
+  "explicit_non_claims": [
+    "Project management does not authorize production deployment.",
+    "Restricted preview authentication does not make public repository contents confidential.",
+    "A rendered village does not establish backend integration.",
+    "Synthetic or evaluator preference does not establish user comprehension or commercial conversion.",
+    "This charter does not establish production readiness, external validation, commercial demand or R9 advancement."
+  ]
+}
